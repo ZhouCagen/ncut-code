@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta charset="ISO-8859-1">
+<title>include/Parser.hpp</title>
+</head>
+<body style="background-color:#ffffff">
+<pre style="color:#000000; background-color:#ffffff; font-size:10pt; font-family:'Courier New',monospace;white-space: pre-wrap;"><span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    1 </span><span style="color:#a71d5d">#pragma once</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    2 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    3 </span><span style="color:#a71d5d">#include</span> <span style="color:#183691">&quot;Reduction.hpp&quot;</span><span style="color:#a71d5d"></span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    4 </span><span style="color:#a71d5d">#include</span> <span style="color:#183691">&quot;Token.hpp&quot;</span><span style="color:#a71d5d"></span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    5 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    6 </span><span style="color:#a71d5d">#include &lt;cstddef&gt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    7 </span><span style="color:#a71d5d">#include &lt;string&gt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    8 </span><span style="color:#a71d5d">#include &lt;vector&gt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    9 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   10 </span><span style="color:#0086b3">class</span> Parser
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   11 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   12 </span>  <span style="color:#0086b3">public</span><span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   13 </span>    <span style="color:#0086b3">explicit Parser</span><span style="color:#000000">(</span><span style="color:#a71d5d">std</span><span style="color:#000000">::</span>vector<span style="color:#000000">&lt;</span>Token<span style="color:#000000">&gt;</span> tokens<span style="color:#000000">);</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   14 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   15 </span>    <span style="color:#0086b3">void</span> <span style="color:#0086b3">parseProgram</span><span style="color:#000000">();</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   16 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   17 </span>    <span style="color:#0086b3">void</span> <span style="color:#0086b3">writeReductions</span><span style="color:#000000">(</span><span style="color:#0086b3">const</span> <span style="color:#a71d5d">std</span><span style="color:#000000">::</span>string <span style="color:#000000">&amp;</span>path<span style="color:#000000">)</span> <span style="color:#0086b3">const</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   18 </span>    <span style="color:#0086b3">void</span> <span style="color:#0086b3">writeResult</span><span style="color:#000000">(</span><span style="color:#0086b3">const</span> <span style="color:#a71d5d">std</span><span style="color:#000000">::</span>string <span style="color:#000000">&amp;</span>path<span style="color:#000000">)</span> <span style="color:#0086b3">const</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   19 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   20 </span>  <span style="color:#0086b3">private</span><span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   21 </span>    <span style="color:#0086b3">void</span> <span style="color:#0086b3">parseStatement</span><span style="color:#000000">();</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   22 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   23 </span>    <span style="color:#0086b3">void</span> <span style="color:#0086b3">parseAssignment</span><span style="color:#000000">();</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   24 </span>    <span style="color:#0086b3">void</span> <span style="color:#0086b3">parseLabeledAssignment</span><span style="color:#000000">();</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   25 </span>    <span style="color:#0086b3">void</span> <span style="color:#0086b3">parseIfStatement</span><span style="color:#000000">();</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   26 </span>    <span style="color:#0086b3">void</span> <span style="color:#0086b3">parseGotoStatement</span><span style="color:#000000">();</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   27 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   28 </span>    <span style="color:#0086b3">void</span> <span style="color:#0086b3">parseBoolExpression</span><span style="color:#000000">();</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   29 </span>    <span style="color:#0086b3">void</span> <span style="color:#0086b3">parseArithmeticExpression</span><span style="color:#000000">(</span><span style="color:#0086b3">int</span> minPrecedence <span style="color:#000000">=</span> <span style="color:#0086b3">0</span><span style="color:#000000">);</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   30 </span>    <span style="color:#0086b3">void</span> <span style="color:#0086b3">parsePrimary</span><span style="color:#000000">();</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   31 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   32 </span>    <span style="color:#a71d5d">std</span><span style="color:#000000">::</span>vector<span style="color:#000000">&lt;</span>Token<span style="color:#000000">&gt;</span> tokens_<span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   33 </span>    <span style="color:#a71d5d">std</span><span style="color:#000000">::</span><span style="color:#0086b3">size_t</span> current_ <span style="color:#000000">=</span> <span style="color:#0086b3">0</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   34 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   35 </span>    ReductionRecorder reductions_<span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   36 </span>    <span style="color:#0086b3">bool</span> parseSuccess_ <span style="color:#000000">=</span> <span style="color:#a71d5d">false</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   37 </span><span style="color:#000000">};</span>
+</pre>
+</body>
+</html>
+<!--HTML generated by highlight 4.20, http://andre-simon.de/-->

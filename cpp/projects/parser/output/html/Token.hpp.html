@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta charset="ISO-8859-1">
+<title>include/Token.hpp</title>
+</head>
+<body style="background-color:#ffffff">
+<pre style="color:#000000; background-color:#ffffff; font-size:10pt; font-family:'Courier New',monospace;white-space: pre-wrap;"><span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    1 </span><span style="color:#a71d5d">#pragma once</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    2 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    3 </span><span style="color:#a71d5d">#include &lt;cstddef&gt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    4 </span><span style="color:#a71d5d">#include &lt;string&gt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    5 </span><span style="color:#a71d5d">#include &lt;string_view&gt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    6 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    7 </span><span style="color:#0086b3">enum</span> <span style="color:#0086b3">class</span> TokenType
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    8 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    9 </span>    Identifier<span style="color:#000000">,</span> <span style="color:#969896">// 标识符</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   10 </span>    Constant<span style="color:#000000">,</span>   <span style="color:#969896">// 常数</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   11 </span>    Label<span style="color:#000000">,</span>      <span style="color:#969896">// 标号</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   12 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   13 </span>    If<span style="color:#000000">,</span>   <span style="color:#969896">// IF</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   14 </span>    Then<span style="color:#000000">,</span> <span style="color:#969896">// THEN</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   15 </span>    Else<span style="color:#000000">,</span> <span style="color:#969896">// ELSE</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   16 </span>    Goto<span style="color:#000000">,</span> <span style="color:#969896">// GOTO</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   17 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   18 </span>    Plus<span style="color:#000000">,</span>  <span style="color:#969896">// +</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   19 </span>    Minus<span style="color:#000000">,</span> <span style="color:#969896">// -</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   20 </span>    Star<span style="color:#000000">,</span>  <span style="color:#969896">// *</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   21 </span>    Slash<span style="color:#000000">,</span> <span style="color:#969896">// /</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   22 </span>    Power<span style="color:#000000">,</span> <span style="color:#969896">// ^ 或 ↑</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   23 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   24 </span>    Assign<span style="color:#000000">,</span> <span style="color:#969896">// =</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   25 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   26 </span>    Greater<span style="color:#000000">,</span>      <span style="color:#969896">// &gt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   27 </span>    Less<span style="color:#000000">,</span>         <span style="color:#969896">// &lt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   28 </span>    GreaterEqual<span style="color:#000000">,</span> <span style="color:#969896">// &gt;=</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   29 </span>    LessEqual<span style="color:#000000">,</span>    <span style="color:#969896">// &lt;=</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   30 </span>    NotEqual<span style="color:#000000">,</span>     <span style="color:#969896">// &lt;&gt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   31 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   32 </span>    LeftParen<span style="color:#000000">,</span>  <span style="color:#969896">// (</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   33 </span>    RightParen<span style="color:#000000">,</span> <span style="color:#969896">// )</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   34 </span>    Colon<span style="color:#000000">,</span>      <span style="color:#969896">// :</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   35 </span>    Semicolon<span style="color:#000000">,</span>  <span style="color:#969896">// ;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   36 </span>    End         <span style="color:#969896">// #</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   37 </span><span style="color:#000000">};</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   38 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   39 </span><span style="color:#0086b3">struct</span> SourceLocation
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   40 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   41 </span>    <span style="color:#a71d5d">std</span><span style="color:#000000">::</span><span style="color:#0086b3">size_t</span> line <span style="color:#000000">=</span> <span style="color:#0086b3">1</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   42 </span>    <span style="color:#a71d5d">std</span><span style="color:#000000">::</span><span style="color:#0086b3">size_t</span> column <span style="color:#000000">=</span> <span style="color:#0086b3">1</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   43 </span><span style="color:#000000">};</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   44 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   45 </span><span style="color:#0086b3">struct</span> Token
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   46 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   47 </span>    TokenType type<span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   48 </span>    <span style="color:#a71d5d">std</span><span style="color:#000000">::</span>string lexeme<span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   49 </span>    SourceLocation location<span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   50 </span><span style="color:#000000">};</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   51 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   52 </span><span style="color:#0086b3">inline</span> <span style="color:#a71d5d">std</span><span style="color:#000000">::</span>string_view <span style="color:#0086b3">tokenTypeName</span><span style="color:#000000">(</span>TokenType type<span style="color:#000000">)</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   53 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   54 </span>    <span style="color:#a71d5d">switch</span> <span style="color:#000000">(</span>type<span style="color:#000000">)</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   55 </span>    <span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   56 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Identifier<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   57 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Identifier&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   58 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Constant<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   59 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Constant&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   60 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Label<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   61 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Label&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   62 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>If<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   63 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;IF&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   64 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Then<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   65 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;THEN&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   66 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Else<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   67 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;ELSE&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   68 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Goto<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   69 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;GOTO&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   70 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Plus<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   71 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;+&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   72 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Minus<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   73 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;-&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   74 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Star<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   75 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;*&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   76 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Slash<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   77 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;/&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   78 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Power<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   79 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;^&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   80 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Assign<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   81 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;=&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   82 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Greater<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   83 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;&gt;&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   84 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Less<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   85 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;&lt;&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   86 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>GreaterEqual<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   87 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;&gt;=&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   88 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>LessEqual<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   89 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;&lt;=&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   90 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>NotEqual<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   91 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;&lt;&gt;&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   92 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>LeftParen<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   93 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;(&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   94 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>RightParen<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   95 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;)&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   96 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Colon<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   97 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;:&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   98 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Semicolon<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   99 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;;&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">  100 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>End<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">  101 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;#&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">  102 </span>    <span style="color:#000000">}</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">  103 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">  104 </span>    <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Unknown&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">  105 </span><span style="color:#000000">}</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">  106 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">  107 </span><span style="color:#0086b3">inline</span> <span style="color:#0086b3">bool</span> <span style="color:#0086b3">isRelationalOperator</span><span style="color:#000000">(</span>TokenType type<span style="color:#000000">)</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">  108 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">  109 </span>    <span style="color:#a71d5d">return</span> type <span style="color:#000000">==</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Greater <span style="color:#000000">||</span> type <span style="color:#000000">==</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Less <span style="color:#000000">||</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">  110 </span>           type <span style="color:#000000">==</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>GreaterEqual <span style="color:#000000">||</span> type <span style="color:#000000">==</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>LessEqual <span style="color:#000000">||</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">  111 </span>           type <span style="color:#000000">==</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Assign <span style="color:#000000">||</span> type <span style="color:#000000">==</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>NotEqual<span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">  112 </span><span style="color:#000000">}</span>
+</pre>
+</body>
+</html>
+<!--HTML generated by highlight 4.20, http://andre-simon.de/-->

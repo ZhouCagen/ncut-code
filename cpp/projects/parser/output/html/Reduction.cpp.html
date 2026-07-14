@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta charset="ISO-8859-1">
+<title>src/Reduction.cpp</title>
+</head>
+<body style="background-color:#ffffff">
+<pre style="color:#000000; background-color:#ffffff; font-size:10pt; font-family:'Courier New',monospace;white-space: pre-wrap;"><span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    1 </span><span style="color:#a71d5d">#include</span> <span style="color:#183691">&quot;Reduction.hpp&quot;</span><span style="color:#a71d5d"></span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    2 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    3 </span><span style="color:#a71d5d">#include &lt;filesystem&gt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    4 </span><span style="color:#a71d5d">#include &lt;fstream&gt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    5 </span><span style="color:#a71d5d">#include &lt;stdexcept&gt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    6 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    7 </span><span style="color:#a71d5d">namespace</span> fs <span style="color:#000000">=</span> <span style="color:#a71d5d">std</span><span style="color:#000000">::</span>filesystem<span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    8 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    9 </span><span style="color:#0086b3">int</span> <span style="color:#0086b3">productionNumber</span><span style="color:#000000">(</span>Production production<span style="color:#000000">)</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   10 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   11 </span>    <span style="color:#a71d5d">return static_cast</span><span style="color:#000000">&lt;</span><span style="color:#0086b3">int</span><span style="color:#000000">&gt;(</span>production<span style="color:#000000">);</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   12 </span><span style="color:#000000">}</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   13 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   14 </span><span style="color:#a71d5d">std</span><span style="color:#000000">::</span>string <span style="color:#0086b3">productionDescription</span><span style="color:#000000">(</span>Production production<span style="color:#000000">)</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   15 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   16 </span>    <span style="color:#a71d5d">switch</span> <span style="color:#000000">(</span>production<span style="color:#000000">)</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   17 </span>    <span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   18 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>Program<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   19 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Program -&gt; StatementList #&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   20 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   21 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>StatementToAssignment<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   22 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Statement -&gt; Assignment&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   23 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>StatementToIf<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   24 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Statement -&gt; IfStatement&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   25 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>StatementToGoto<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   26 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Statement -&gt; GotoStatement&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   27 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>StatementToLabeledAssignment<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   28 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Statement -&gt; LabeledAssignment&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   29 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   30 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>LabeledAssignment<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   31 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;LabeledAssignment -&gt; Label : Assignment&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   32 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>Assignment<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   33 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Assignment -&gt; Identifier = ArithmeticExpression&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   34 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   35 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>IfThen<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   36 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;IfStatement -&gt; IF BoolExpression THEN Statement&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   37 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>IfThenElse<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   38 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;IfStatement -&gt; IF BoolExpression THEN Statement ELSE Statement&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   39 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   40 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>Goto<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   41 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;GotoStatement -&gt; GOTO Label&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   42 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   43 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>BoolExpression<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   44 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;BoolExpression -&gt; ArithmeticExpression Relop ArithmeticExpression&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   45 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   46 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>Add<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   47 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;ArithmeticExpression -&gt; ArithmeticExpression + Term&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   48 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>Subtract<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   49 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;ArithmeticExpression -&gt; ArithmeticExpression - Term&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   50 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>Multiply<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   51 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Term -&gt; Term * Factor&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   52 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>Divide<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   53 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Term -&gt; Term / Factor&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   54 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>Power<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   55 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Term -&gt; Factor ^ Term&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   56 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   57 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>FactorIdentifier<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   58 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Factor -&gt; Identifier&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   59 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>FactorConstant<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   60 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Factor -&gt; Constant&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   61 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">Production</span><span style="color:#000000">::</span>FactorParenthesized<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   62 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Factor -&gt; ( ArithmeticExpression )&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   63 </span>    <span style="color:#000000">}</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   64 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   65 </span>    <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Unknown production&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   66 </span><span style="color:#000000">}</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   67 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   68 </span><span style="color:#0086b3">void</span> <span style="color:#a71d5d">ReductionRecorder</span><span style="color:#000000">::</span><span style="color:#0086b3">record</span><span style="color:#000000">(</span>Production production<span style="color:#000000">)</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   69 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   70 </span>    reductions_<span style="color:#000000">.</span><span style="color:#0086b3">push_back</span><span style="color:#000000">(</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   71 </span>        Reduction<span style="color:#000000">{.</span>production <span style="color:#000000">=</span> production<span style="color:#000000">, .</span>description <span style="color:#000000">=</span> <span style="color:#0086b3">productionDescription</span><span style="color:#000000">(</span>production<span style="color:#000000">)});</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   72 </span><span style="color:#000000">}</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   73 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   74 </span><span style="color:#0086b3">void</span> <span style="color:#a71d5d">ReductionRecorder</span><span style="color:#000000">::</span><span style="color:#0086b3">writeToFile</span><span style="color:#000000">(</span><span style="color:#0086b3">const</span> <span style="color:#a71d5d">std</span><span style="color:#000000">::</span>string <span style="color:#000000">&amp;</span>path<span style="color:#000000">)</span> <span style="color:#0086b3">const</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   75 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   76 </span>    <span style="color:#a71d5d">fs</span><span style="color:#000000">::</span>path <span style="color:#0086b3">outputPath</span><span style="color:#000000">(</span>path<span style="color:#000000">);</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   77 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   78 </span>    <span style="color:#a71d5d">if</span> <span style="color:#000000">(!</span>outputPath<span style="color:#000000">.</span><span style="color:#0086b3">parent_path</span><span style="color:#000000">().</span><span style="color:#0086b3">empty</span><span style="color:#000000">())</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   79 </span>        <span style="color:#a71d5d">fs</span><span style="color:#000000">::</span><span style="color:#0086b3">create_directories</span><span style="color:#000000">(</span>outputPath<span style="color:#000000">.</span><span style="color:#0086b3">parent_path</span><span style="color:#000000">());</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   80 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   81 </span>    <span style="color:#a71d5d">std</span><span style="color:#000000">::</span>ofstream <span style="color:#0086b3">output</span><span style="color:#000000">(</span>path<span style="color:#000000">);</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   82 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   83 </span>    <span style="color:#a71d5d">if</span> <span style="color:#000000">(!</span>output<span style="color:#000000">.</span><span style="color:#0086b3">is_open</span><span style="color:#000000">())</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   84 </span>        <span style="color:#a71d5d">throw</span> <span style="color:#a71d5d">std</span><span style="color:#000000">::</span><span style="color:#0086b3">runtime_error</span><span style="color:#000000">(</span><span style="color:#183691">&quot;cannot create reduction file: &quot;</span> <span style="color:#000000">+</span> path<span style="color:#000000">);</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   85 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   86 </span>    output <span style="color:#000000">&lt;&lt;</span> <span style="color:#183691">&quot;Reduction sequence:</span><span style="color:#183691">\n</span><span style="color:#183691">&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   87 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   88 </span>    <span style="color:#a71d5d">for</span> <span style="color:#000000">(</span><span style="color:#0086b3">const</span> <span style="color:#0086b3">auto</span> <span style="color:#000000">&amp;</span>reduction <span style="color:#000000">:</span> reductions_<span style="color:#000000">)</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   89 </span>    <span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   90 </span>        output <span style="color:#000000">&lt;&lt;</span> <span style="color:#0086b3">productionNumber</span><span style="color:#000000">(</span>reduction<span style="color:#000000">.</span>production<span style="color:#000000">) &lt;&lt;</span> <span style="color:#183691">&quot;. &quot;</span> <span style="color:#000000">&lt;&lt;</span> reduction<span style="color:#000000">.</span>description <span style="color:#000000">&lt;&lt;</span> <span style="color:#183691">&#39;</span><span style="color:#183691">\n</span><span style="color:#183691">&#39;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   91 </span>    <span style="color:#000000">}</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   92 </span><span style="color:#000000">}</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   93 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   94 </span><span style="color:#0086b3">const</span> <span style="color:#a71d5d">std</span><span style="color:#000000">::</span>vector<span style="color:#000000">&lt;</span>Reduction<span style="color:#000000">&gt; &amp;</span><span style="color:#a71d5d">ReductionRecorder</span><span style="color:#000000">::</span><span style="color:#0086b3">reductions</span><span style="color:#000000">()</span> <span style="color:#0086b3">const</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   95 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   96 </span>    <span style="color:#a71d5d">return</span> reductions_<span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   97 </span><span style="color:#000000">}</span>
+</pre>
+</body>
+</html>
+<!--HTML generated by highlight 4.20, http://andre-simon.de/-->

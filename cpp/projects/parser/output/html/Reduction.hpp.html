@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta charset="ISO-8859-1">
+<title>include/Reduction.hpp</title>
+</head>
+<body style="background-color:#ffffff">
+<pre style="color:#000000; background-color:#ffffff; font-size:10pt; font-family:'Courier New',monospace;white-space: pre-wrap;"><span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    1 </span><span style="color:#a71d5d">#pragma once</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    2 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    3 </span><span style="color:#a71d5d">#include &lt;string&gt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    4 </span><span style="color:#a71d5d">#include &lt;vector&gt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    5 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    6 </span><span style="color:#0086b3">enum</span> <span style="color:#0086b3">class</span> Production
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    7 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    8 </span>    Program <span style="color:#000000">=</span> <span style="color:#0086b3">0</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    9 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   10 </span>    StatementToAssignment <span style="color:#000000">=</span> <span style="color:#0086b3">1</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   11 </span>    StatementToIf <span style="color:#000000">=</span> <span style="color:#0086b3">2</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   12 </span>    StatementToGoto <span style="color:#000000">=</span> <span style="color:#0086b3">3</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   13 </span>    StatementToLabeledAssignment <span style="color:#000000">=</span> <span style="color:#0086b3">4</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   14 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   15 </span>    LabeledAssignment <span style="color:#000000">=</span> <span style="color:#0086b3">5</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   16 </span>    Assignment <span style="color:#000000">=</span> <span style="color:#0086b3">6</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   17 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   18 </span>    IfThen <span style="color:#000000">=</span> <span style="color:#0086b3">7</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   19 </span>    IfThenElse <span style="color:#000000">=</span> <span style="color:#0086b3">8</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   20 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   21 </span>    Goto <span style="color:#000000">=</span> <span style="color:#0086b3">9</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   22 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   23 </span>    BoolExpression <span style="color:#000000">=</span> <span style="color:#0086b3">10</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   24 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   25 </span>    Add <span style="color:#000000">=</span> <span style="color:#0086b3">11</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   26 </span>    Subtract <span style="color:#000000">=</span> <span style="color:#0086b3">12</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   27 </span>    Multiply <span style="color:#000000">=</span> <span style="color:#0086b3">13</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   28 </span>    Divide <span style="color:#000000">=</span> <span style="color:#0086b3">14</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   29 </span>    Power <span style="color:#000000">=</span> <span style="color:#0086b3">15</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   30 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   31 </span>    FactorIdentifier <span style="color:#000000">=</span> <span style="color:#0086b3">16</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   32 </span>    FactorConstant <span style="color:#000000">=</span> <span style="color:#0086b3">17</span><span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   33 </span>    FactorParenthesized <span style="color:#000000">=</span> <span style="color:#0086b3">18</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   34 </span><span style="color:#000000">};</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   35 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   36 </span><span style="color:#0086b3">struct</span> Reduction
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   37 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   38 </span>    Production production<span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   39 </span>    <span style="color:#a71d5d">std</span><span style="color:#000000">::</span>string description<span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   40 </span><span style="color:#000000">};</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   41 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   42 </span><span style="color:#0086b3">class</span> ReductionRecorder
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   43 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   44 </span>  <span style="color:#0086b3">public</span><span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   45 </span>    <span style="color:#0086b3">void</span> <span style="color:#0086b3">record</span><span style="color:#000000">(</span>Production production<span style="color:#000000">);</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   46 </span>    <span style="color:#0086b3">void</span> <span style="color:#0086b3">writeToFile</span><span style="color:#000000">(</span><span style="color:#0086b3">const</span> <span style="color:#a71d5d">std</span><span style="color:#000000">::</span>string <span style="color:#000000">&amp;</span>path<span style="color:#000000">)</span> <span style="color:#0086b3">const</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   47 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   48 </span>    <span style="color:#0086b3">const</span> <span style="color:#a71d5d">std</span><span style="color:#000000">::</span>vector<span style="color:#000000">&lt;</span>Reduction<span style="color:#000000">&gt; &amp;</span><span style="color:#0086b3">reductions</span><span style="color:#000000">()</span> <span style="color:#0086b3">const</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   49 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   50 </span>  <span style="color:#0086b3">private</span><span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   51 </span>    <span style="color:#a71d5d">std</span><span style="color:#000000">::</span>vector<span style="color:#000000">&lt;</span>Reduction<span style="color:#000000">&gt;</span> reductions_<span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   52 </span><span style="color:#000000">};</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   53 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   54 </span><span style="color:#0086b3">int</span> <span style="color:#0086b3">productionNumber</span><span style="color:#000000">(</span>Production production<span style="color:#000000">);</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   55 </span><span style="color:#a71d5d">std</span><span style="color:#000000">::</span>string <span style="color:#0086b3">productionDescription</span><span style="color:#000000">(</span>Production production<span style="color:#000000">);</span>
+</pre>
+</body>
+</html>
+<!--HTML generated by highlight 4.20, http://andre-simon.de/-->

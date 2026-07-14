@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta charset="ISO-8859-1">
+<title>include/Token.hpp</title>
+</head>
+<body style="background-color:#ffffff">
+<pre style="color:#000000; background-color:#ffffff; font-size:10pt; font-family:'Courier New',monospace;white-space: pre-wrap;"><span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    1 </span><span style="color:#a71d5d">#pragma once</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    2 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    3 </span><span style="color:#a71d5d">#include &lt;cstddef&gt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    4 </span><span style="color:#a71d5d">#include &lt;optional&gt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    5 </span><span style="color:#a71d5d">#include &lt;string&gt;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    6 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    7 </span><span style="color:#0086b3">enum</span> <span style="color:#0086b3">class</span> TokenType
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    8 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">    9 </span>    Keyword<span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   10 </span>    Identifier<span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   11 </span>    Constant<span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   12 </span>    Label<span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   13 </span>    Operator<span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   14 </span>    Punctuation<span style="color:#000000">,</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   15 </span>    End
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   16 </span><span style="color:#000000">};</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   17 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   18 </span><span style="color:#0086b3">struct</span> SourceLocation
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   19 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   20 </span>    <span style="color:#a71d5d">std</span><span style="color:#000000">::</span><span style="color:#0086b3">size_t</span> line <span style="color:#000000">=</span> <span style="color:#0086b3">1</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   21 </span>    <span style="color:#a71d5d">std</span><span style="color:#000000">::</span><span style="color:#0086b3">size_t</span> column <span style="color:#000000">=</span> <span style="color:#0086b3">1</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   22 </span><span style="color:#000000">};</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   23 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   24 </span><span style="color:#0086b3">struct</span> Token
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   25 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   26 </span>    TokenType type<span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   27 </span>    <span style="color:#a71d5d">std</span><span style="color:#000000">::</span>string lexeme<span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   28 </span>    SourceLocation location<span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   29 </span>    <span style="color:#a71d5d">std</span><span style="color:#000000">::</span>optional<span style="color:#000000">&lt;</span><span style="color:#a71d5d">std</span><span style="color:#000000">::</span><span style="color:#0086b3">size_t</span><span style="color:#000000">&gt;</span> tableIndex<span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   30 </span><span style="color:#000000">};</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   31 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   32 </span><span style="color:#0086b3">inline</span> <span style="color:#0086b3">char</span> <span style="color:#0086b3">tokenTypeCode</span><span style="color:#000000">(</span>TokenType type<span style="color:#000000">)</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   33 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   34 </span>    <span style="color:#a71d5d">switch</span> <span style="color:#000000">(</span>type<span style="color:#000000">)</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   35 </span>    <span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   36 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Keyword<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   37 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&#39;K&#39;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   38 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Identifier<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   39 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&#39;I&#39;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   40 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Constant<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   41 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&#39;C&#39;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   42 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Label<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   43 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&#39;L&#39;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   44 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Operator<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   45 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&#39;O&#39;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   46 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Punctuation<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   47 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&#39;P&#39;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   48 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>End<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   49 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&#39;#&#39;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   50 </span>    <span style="color:#000000">}</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   51 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   52 </span>    <span style="color:#a71d5d">return</span> <span style="color:#183691">&#39;?&#39;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   53 </span><span style="color:#000000">}</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   54 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   55 </span><span style="color:#0086b3">inline</span> <span style="color:#a71d5d">std</span><span style="color:#000000">::</span>string_view <span style="color:#0086b3">tokenTypeName</span><span style="color:#000000">(</span>TokenType type<span style="color:#000000">)</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   56 </span><span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   57 </span>    <span style="color:#a71d5d">switch</span> <span style="color:#000000">(</span>type<span style="color:#000000">)</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   58 </span>    <span style="color:#000000">{</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   59 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Keyword<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   60 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Keyword&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   61 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Identifier<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   62 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Identifier&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   63 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Constant<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   64 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Constant&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   65 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Label<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   66 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Label&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   67 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Operator<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   68 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Operator&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   69 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>Punctuation<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   70 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Punctuation&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   71 </span>        <span style="color:#a71d5d">case</span> <span style="color:#a71d5d">TokenType</span><span style="color:#000000">::</span>End<span style="color:#000000">:</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   72 </span>            <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;End&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   73 </span>    <span style="color:#000000">}</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   74 </span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   75 </span>    <span style="color:#a71d5d">return</span> <span style="color:#183691">&quot;Unknown&quot;</span><span style="color:#000000">;</span>
+<span style="color:#b2b2b2; user-select: none;-webkit-user-select: none">   76 </span><span style="color:#000000">}</span>
+</pre>
+</body>
+</html>
+<!--HTML generated by highlight 4.20, http://andre-simon.de/-->

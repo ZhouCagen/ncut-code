@@ -1,0 +1,171 @@
+{\rtf1\ansi \deff1{\fonttbl{\f1\fmodern\fprq1\fcharset0 Courier New;}}{\colortbl;\red224\green234\blue238;\red00\green00\blue00;\red191\green03\blue03;\red176\green126\blue00;\red131\green129\blue131;\red131\green129\blue131;\red255\green00\blue255;\red00\green130\blue00;\red129\green129\blue00;\red85\green85\blue85;\red00\green00\blue00;\red00\green87\blue174;\red255\green00\blue00;\red255\green00\blue00;\red00\green00\blue00;\red00\green87\blue174;\red01\green01\blue129;\red13\green91\blue195;\red117\green13\blue195;}
+\paperw11905\paperh16837\margl1134\margr1134\margt1134\margb1134\sectd\plain\f1\fs20
+\pard \cbpat1{{\cf2{}}{\cf8{#include}} {\cf9{"UserRepository.hpp"}}{\cf8{}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <sqlite{3}.h>}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <stdexcept>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <string>}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf15{\b namespace\b0 }}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{runtime_error}} {\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{sqlite{3}}} {\cf11{*}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf11{&}}{\cf2{message}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return\b0 }} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{runtime_error}}{\cf2{}}{\cf11{(}}{\cf2{message}} {\cf11{+}} {\cf2{}}{\cf3{": "}}{\cf2{}} {\cf11{+}} {\cf2{}}{\cf17{sqlite{3}_errmsg}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf17{columnText}}{\cf2{}}{\cf11{(}}{\cf2{sqlite{3}_stmt}} {\cf11{*}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf16{int}} {\cf2{column}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{const unsigned char}} {\cf2{}}{\cf11{*}}{\cf2{text}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_column_text}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{column}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{text}} {\cf11{==}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }} {\cf2{}}{\cf11{\{\};}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return reinterpret_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{const char}} {\cf2{}}{\cf11{*>(}}{\cf2{text}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{UserRecord}} {\cf17{readUser}}{\cf2{}}{\cf11{(}}{\cf2{sqlite{3}_stmt}} {\cf11{*}}{\cf2{statement}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    UserRecord user}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{    user}}{\cf11{.}}{\cf2{id}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_column_int}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{0}}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{    user}}{\cf11{.}}{\cf2{account}} {\cf11{=}} {\cf2{}}{\cf17{columnText}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{    user}}{\cf11{.}}{\cf2{nickname}} {\cf11{=}} {\cf2{}}{\cf17{columnText}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{2}}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{    user}}{\cf11{.}}{\cf2{passwordHash}} {\cf11{=}} {\cf2{}}{\cf17{columnText}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{3}}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{    user}}{\cf11{.}}{\cf2{phone}} {\cf11{=}} {\cf2{}}{\cf17{columnText}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{4}}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{    user}}{\cf11{.}}{\cf2{birthday}} {\cf11{=}} {\cf2{}}{\cf17{columnText}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{5}}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{    user}}{\cf11{.}}{\cf2{gender}} {\cf11{=}} {\cf2{}}{\cf17{columnText}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{6}}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{    user}}{\cf11{.}}{\cf2{email}} {\cf11{=}} {\cf2{}}{\cf17{columnText}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{7}}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return\b0 }} {\cf2{user}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}} {\cf2{}}{\cf5{\i // namespace\i0 }}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf18{UserRepository}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{UserRepository}}{\cf2{}}{\cf11{(}}{\cf2{Database}} {\cf11{&}}{\cf2{database}}{\cf11{) :}} {\cf2{}}{\cf17{database_}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{bool}} {\cf2{}}{\cf18{UserRepository}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{createUser}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view account}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view nickname}}{\cf11{,}}}\par\pard
+\cbpat1{{\cf2{}}                                {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view passwordHash}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view phone}}{\cf11{,}}}\par\pard
+\cbpat1{{\cf2{}}                                {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view birthday}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view gender}}{\cf11{,}}}\par\pard
+\cbpat1{{\cf2{}}                                {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view email}}{\cf11{,}} {\cf2{}}{\cf16{int}} {\cf2{}}{\cf11{&}}{\cf2{createdUserId}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}}} {\cf11{*}}{\cf2{database}} {\cf11{=}} {\cf2{database_}}{\cf11{.}}{\cf2{}}{\cf17{raw}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{const char}} {\cf2{}}{\cf11{*}}{\cf2{sql}} {\cf11{=}} {\cf2{R}}{\cf3{"sql(}}}\par\pard
+\cbpat1{{\cf3{        INSERT INTO users (account, nickname, password_hash, phone, birthday, gender, email)}}}\par\pard
+\cbpat1{{\cf3{        VALUES (?, ?, ?, ?, ?, ?, ?);}}}\par\pard
+\cbpat1{{\cf3{    )sql"}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}_stmt}} {\cf11{*}}{\cf2{statement}} {\cf11{=}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{prepareResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_prepare_v{2}}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{sql}}{\cf11{, -}}{\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{, &}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{prepareResult}} {\cf11{!=}} {\cf2{SQLITE_OK}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b throw\b0 }} {\cf2{}}{\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf3{"prepare create user failed"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_text}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{,}} {\cf2{account}}{\cf11{.}}{\cf2{}}{\cf17{data}}{\cf2{}}{\cf11{(),}} {\cf2{}}{\cf15{\b static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>(}}{\cf2{account}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{()),}}}\par\pard
+\cbpat1{{\cf2{                      SQLITE_TRANSIENT}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_text}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{2}}}{\cf2{}}{\cf11{,}} {\cf2{nickname}}{\cf11{.}}{\cf2{}}{\cf17{data}}{\cf2{}}{\cf11{(),}} {\cf2{}}{\cf15{\b static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>(}}{\cf2{nickname}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{()),}}}\par\pard
+\cbpat1{{\cf2{                      SQLITE_TRANSIENT}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_text}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{3}}}{\cf2{}}{\cf11{,}} {\cf2{passwordHash}}{\cf11{.}}{\cf2{}}{\cf17{data}}{\cf2{}}{\cf11{(),}} {\cf2{}}{\cf15{\b static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>(}}{\cf2{passwordHash}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{()),}}}\par\pard
+\cbpat1{{\cf2{                      SQLITE_TRANSIENT}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_text}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{4}}}{\cf2{}}{\cf11{,}} {\cf2{phone}}{\cf11{.}}{\cf2{}}{\cf17{data}}{\cf2{}}{\cf11{(),}} {\cf2{}}{\cf15{\b static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>(}}{\cf2{phone}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{()),}} {\cf2{SQLITE_TRANSIENT}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_text}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{5}}}{\cf2{}}{\cf11{,}} {\cf2{birthday}}{\cf11{.}}{\cf2{}}{\cf17{data}}{\cf2{}}{\cf11{(),}} {\cf2{}}{\cf15{\b static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>(}}{\cf2{birthday}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{()),}}}\par\pard
+\cbpat1{{\cf2{                      SQLITE_TRANSIENT}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_text}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{6}}}{\cf2{}}{\cf11{,}} {\cf2{gender}}{\cf11{.}}{\cf2{}}{\cf17{data}}{\cf2{}}{\cf11{(),}} {\cf2{}}{\cf15{\b static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>(}}{\cf2{gender}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{()),}}}\par\pard
+\cbpat1{{\cf2{                      SQLITE_TRANSIENT}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_text}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{7}}}{\cf2{}}{\cf11{,}} {\cf2{email}}{\cf11{.}}{\cf2{}}{\cf17{data}}{\cf2{}}{\cf11{(),}} {\cf2{}}{\cf15{\b static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>(}}{\cf2{email}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{()),}} {\cf2{SQLITE_TRANSIENT}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{stepResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_step}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{stepResult}} {\cf11{==}} {\cf2{SQLITE_CONSTRAINT}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return false\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{stepResult}} {\cf11{!=}} {\cf2{SQLITE_DONE}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b throw\b0 }} {\cf2{}}{\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf3{"insert user failed"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    createdUserId}} {\cf11{=}} {\cf2{}}{\cf15{\b static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>(}}{\cf2{}}{\cf17{sqlite{3}_last_insert_rowid}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return true\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{optional}}{\cf11{<}}{\cf2{UserRecord}}{\cf11{>}} {\cf2{}}{\cf18{UserRepository}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{findByAccount}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view account}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}}} {\cf11{*}}{\cf2{database}} {\cf11{=}} {\cf2{database_}}{\cf11{.}}{\cf2{}}{\cf17{raw}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{const char}} {\cf2{}}{\cf11{*}}{\cf2{sql}} {\cf11{=}} {\cf2{R}}{\cf3{"sql(}}}\par\pard
+\cbpat1{{\cf3{        SELECT id, account, nickname, password_hash, phone, birthday, gender, email}}}\par\pard
+\cbpat1{{\cf3{        FROM users}}}\par\pard
+\cbpat1{{\cf3{        WHERE account = ?;}}}\par\pard
+\cbpat1{{\cf3{    )sql"}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}_stmt}} {\cf11{*}}{\cf2{statement}} {\cf11{=}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{prepareResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_prepare_v{2}}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{sql}}{\cf11{, -}}{\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{, &}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{prepareResult}} {\cf11{!=}} {\cf2{SQLITE_OK}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b throw\b0 }} {\cf2{}}{\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf3{"prepare find user by account failed"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_text}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{,}} {\cf2{account}}{\cf11{.}}{\cf2{}}{\cf17{data}}{\cf2{}}{\cf11{(),}} {\cf2{}}{\cf15{\b static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>(}}{\cf2{account}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{()),}}}\par\pard
+\cbpat1{{\cf2{                      SQLITE_TRANSIENT}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{stepResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_step}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{stepResult}} {\cf11{==}} {\cf2{SQLITE_ROW}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{        UserRecord user}} {\cf11{=}} {\cf2{}}{\cf17{readUser}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }} {\cf2{user}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{stepResult}} {\cf11{==}} {\cf2{SQLITE_DONE}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{nullopt}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b throw\b0 }} {\cf2{}}{\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf3{"find user by account failed"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{optional}}{\cf11{<}}{\cf2{UserRecord}}{\cf11{>}} {\cf2{}}{\cf18{UserRepository}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{findById}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{userId}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}}} {\cf11{*}}{\cf2{database}} {\cf11{=}} {\cf2{database_}}{\cf11{.}}{\cf2{}}{\cf17{raw}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{const char}} {\cf2{}}{\cf11{*}}{\cf2{sql}} {\cf11{=}} {\cf2{R}}{\cf3{"sql(}}}\par\pard
+\cbpat1{{\cf3{        SELECT id, account, nickname, password_hash, phone, birthday, gender, email}}}\par\pard
+\cbpat1{{\cf3{        FROM users}}}\par\pard
+\cbpat1{{\cf3{        WHERE id = ?;}}}\par\pard
+\cbpat1{{\cf3{    )sql"}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}_stmt}} {\cf11{*}}{\cf2{statement}} {\cf11{=}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{prepareResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_prepare_v{2}}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{sql}}{\cf11{, -}}{\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{, &}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{prepareResult}} {\cf11{!=}} {\cf2{SQLITE_OK}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b throw\b0 }} {\cf2{}}{\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf3{"prepare find user by id failed"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_int}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{,}} {\cf2{userId}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{stepResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_step}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{stepResult}} {\cf11{==}} {\cf2{SQLITE_ROW}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{        UserRecord user}} {\cf11{=}} {\cf2{}}{\cf17{readUser}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }} {\cf2{user}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{stepResult}} {\cf11{==}} {\cf2{SQLITE_DONE}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{nullopt}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b throw\b0 }} {\cf2{}}{\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf3{"find user by id failed"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}{\cf2{}}}\par\pard
+\cbpat1{}}

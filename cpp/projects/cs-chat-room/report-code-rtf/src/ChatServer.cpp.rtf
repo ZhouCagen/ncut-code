@@ -1,0 +1,683 @@
+{\rtf1\ansi \deff1{\fonttbl{\f1\fmodern\fprq1\fcharset0 Courier New;}}{\colortbl;\red224\green234\blue238;\red00\green00\blue00;\red191\green03\blue03;\red176\green126\blue00;\red131\green129\blue131;\red131\green129\blue131;\red255\green00\blue255;\red00\green130\blue00;\red129\green129\blue00;\red85\green85\blue85;\red00\green00\blue00;\red00\green87\blue174;\red255\green00\blue00;\red255\green00\blue00;\red00\green00\blue00;\red00\green87\blue174;\red01\green01\blue129;\red13\green91\blue195;\red117\green13\blue195;}
+\paperw11905\paperh16837\margl1134\margr1134\margt1134\margb1134\sectd\plain\f1\fs20
+\pard \cbpat1{{\cf2{}}{\cf8{#include}} {\cf9{"ChatServer.hpp"}}{\cf8{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include}} {\cf9{"PasswordHasher.hpp"}}{\cf8{}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <sqlite{3}.h>}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <cctype>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <spdlog/spdlog.h>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <stdexcept>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <string>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <utility>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <vector>}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf15{\b namespace\b0 }}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf17{trim}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view value}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf16{size_t}} {\cf2{begin}} {\cf11{=}} {\cf2{}}{\cf4{{0}}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b while\b0 }} {\cf2{}}{\cf11{(}}{\cf2{begin}} {\cf11{<}} {\cf2{value}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{() &&}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{isspace}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf15{\b static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{unsigned char}}{\cf2{}}{\cf11{>(}}{\cf2{value}}{\cf11{[}}{\cf2{begin}}{\cf11{])))}}}\par\pard
+\cbpat1{{\cf2{        begin}}{\cf11{++;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf16{size_t}} {\cf2{end}} {\cf11{=}} {\cf2{value}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b while\b0 }} {\cf2{}}{\cf11{(}}{\cf2{end}} {\cf11{>}} {\cf2{begin}} {\cf11{&&}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{isspace}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf15{\b static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{unsigned char}}{\cf2{}}{\cf11{>(}}{\cf2{value}}{\cf11{[}}{\cf2{end}} {\cf11{-}} {\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{])))}}}\par\pard
+\cbpat1{{\cf2{        end}}{\cf11{--;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return\b0 }} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{string}}{\cf2{}}{\cf11{(}}{\cf2{value}}{\cf11{.}}{\cf2{}}{\cf17{substr}}{\cf2{}}{\cf11{(}}{\cf2{begin}}{\cf11{,}} {\cf2{end}} {\cf11{-}} {\cf2{begin}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf17{getStringField}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{nlohmann}}{\cf2{}}{\cf11{::}}{\cf2{json}} {\cf11{&}}{\cf2{json}}{\cf11{,}} {\cf2{}}{\cf16{const char}} {\cf2{}}{\cf11{*}}{\cf2{key}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{json}}{\cf11{.}}{\cf2{}}{\cf17{contains}}{\cf2{}}{\cf11{(}}{\cf2{key}}{\cf11{) || !}}{\cf2{json}}{\cf11{[}}{\cf2{key}}{\cf11{].}}{\cf2{}}{\cf17{is_string}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }} {\cf2{}}{\cf11{\{\};}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return\b0 }} {\cf2{json}}{\cf11{[}}{\cf2{key}}{\cf11{].}}{\cf2{get}}{\cf11{<}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}}{\cf11{>();}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{int}} {\cf2{}}{\cf17{getIntField}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{nlohmann}}{\cf2{}}{\cf11{::}}{\cf2{json}} {\cf11{&}}{\cf2{json}}{\cf11{,}} {\cf2{}}{\cf16{const char}} {\cf2{}}{\cf11{*}}{\cf2{key}}{\cf11{,}} {\cf2{}}{\cf16{int}} {\cf2{defaultValue}} {\cf11{= -}}{\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{json}}{\cf11{.}}{\cf2{}}{\cf17{contains}}{\cf2{}}{\cf11{(}}{\cf2{key}}{\cf11{) || !}}{\cf2{json}}{\cf11{[}}{\cf2{key}}{\cf11{].}}{\cf2{}}{\cf17{is_number_integer}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }} {\cf2{defaultValue}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return\b0 }} {\cf2{json}}{\cf11{[}}{\cf2{key}}{\cf11{].}}{\cf2{get}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>();}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{runtime_error}} {\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{sqlite{3}}} {\cf11{*}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf11{&}}{\cf2{message}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return\b0 }} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{runtime_error}}{\cf2{}}{\cf11{(}}{\cf2{message}} {\cf11{+}} {\cf2{}}{\cf3{": "}}{\cf2{}} {\cf11{+}} {\cf2{}}{\cf17{sqlite{3}_errmsg}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}} {\cf2{}}{\cf5{\i // namespace\i0 }}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{ChatServer}}{\cf2{}}{\cf11{(}}{\cf2{WebSocketServer}} {\cf11{&}}{\cf2{webSocketServer}}{\cf11{,}} {\cf2{Database}} {\cf11{&}}{\cf2{database}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{:}} {\cf2{}}{\cf17{webSocketServer_}}{\cf2{}}{\cf11{(}}{\cf2{webSocketServer}}{\cf11{),}} {\cf2{}}{\cf17{database_}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{),}} {\cf2{}}{\cf17{userRepository_}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    webSocketServer_}}{\cf11{.}}{\cf2{}}{\cf17{setClientConnectedCallback}}{\cf2{}}{\cf11{([}}{\cf2{}}{\cf15{\b this\b0 }}{\cf2{}}{\cf11{](}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}                                                {\cf11{\{}} {\cf2{}}{\cf17{handleClientConnected}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{); \});}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    webSocketServer_}}{\cf11{.}}{\cf2{}}{\cf17{setClientDisconnectedCallback}}{\cf2{}}{\cf11{([}}{\cf2{}}{\cf15{\b this\b0 }}{\cf2{}}{\cf11{](}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}                                                   {\cf11{\{}} {\cf2{}}{\cf17{handleClientDisconnected}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{); \});}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    webSocketServer_}}{\cf11{.}}{\cf2{}}{\cf17{setTextCallback}}{\cf2{}}{\cf11{([}}{\cf2{}}{\cf15{\b this\b0 }}{\cf2{}}{\cf11{](}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view text}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}                                     {\cf11{\{}} {\cf2{}}{\cf17{handleTextMessage}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{text}}{\cf11{); \});}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{handleClientConnected}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{spdlog}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{info}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"chat websocket connected, socket \{\}"}}{\cf2{}}{\cf11{,}} {\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sendJson}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{, \{}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"type"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"system"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"message"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"\u24050?\u-28706?\u25509?\u26381?\u21153?\u22120?\u-244?\u-29705?\u20808?\u27880?\u20876?\u25110?\u30331?\u24405?"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                           {\cf11{\});}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{handleClientDisconnected}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{auto}} {\cf2{sessionIterator}} {\cf11{=}} {\cf2{socketToSession_}}{\cf11{.}}{\cf2{}}{\cf17{find}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{sessionIterator}} {\cf11{==}} {\cf2{socketToSession_}}{\cf11{.}}{\cf2{}}{\cf17{end}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{userId}} {\cf11{=}} {\cf2{sessionIterator}}{\cf11{->}}{\cf2{second}}{\cf11{.}}{\cf2{userId}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string account}} {\cf11{=}} {\cf2{sessionIterator}}{\cf11{->}}{\cf2{second}}{\cf11{.}}{\cf2{account}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string nickname}} {\cf11{=}} {\cf2{sessionIterator}}{\cf11{->}}{\cf2{second}}{\cf11{.}}{\cf2{nickname}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    socketToSession_}}{\cf11{.}}{\cf2{}}{\cf17{erase}}{\cf2{}}{\cf11{(}}{\cf2{sessionIterator}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{auto}} {\cf2{socketIterator}} {\cf11{=}} {\cf2{userIdToSocket_}}{\cf11{.}}{\cf2{}}{\cf17{find}}{\cf2{}}{\cf11{(}}{\cf2{userId}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{socketIterator}} {\cf11{!=}} {\cf2{userIdToSocket_}}{\cf11{.}}{\cf2{}}{\cf17{end}}{\cf2{}}{\cf11{() &&}} {\cf2{socketIterator}}{\cf11{->}}{\cf2{second}} {\cf11{==}} {\cf2{clientSocket}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{        userIdToSocket_}}{\cf11{.}}{\cf2{}}{\cf17{erase}}{\cf2{}}{\cf11{(}}{\cf2{socketIterator}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{spdlog}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{info}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"chat user disconnected, socket \{\}, account \{\}, nickname \{\}"}}{\cf2{}}{\cf11{,}} {\cf2{clientSocket}}{\cf11{,}}}\par\pard
+\cbpat1{{\cf2{                 account}}{\cf11{,}} {\cf2{nickname}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{handleTextMessage}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view text}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{nlohmann}}{\cf2{}}{\cf11{::}}{\cf2{json request}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b try\b0 }}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{        request}} {\cf11{=}} {\cf2{}}{\cf18{nlohmann}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf18{json}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{parse}}{\cf2{}}{\cf11{(}}{\cf2{text}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b catch\b0 }} {\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{exception}} {\cf11{&}}{\cf2{error}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf3{"JSON \u26684?\u24335?\u-27367?\u-29713?"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string type}} {\cf11{=}} {\cf2{}}{\cf17{getStringField}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{,}} {\cf2{}}{\cf3{"type"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{type}} {\cf11{==}} {\cf2{}}{\cf3{"register"}}{\cf2{}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{handleRegister}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{request}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b else if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{type}} {\cf11{==}} {\cf2{}}{\cf3{"login"}}{\cf2{}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{handleLogin}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{request}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b else if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{type}} {\cf11{==}} {\cf2{}}{\cf3{"private_message"}}{\cf2{}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{handlePrivateMessage}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{request}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b else if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{type}} {\cf11{==}} {\cf2{}}{\cf3{"create_group"}}{\cf2{}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{handleCreateGroup}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{request}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b else if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{type}} {\cf11{==}} {\cf2{}}{\cf3{"join_group"}}{\cf2{}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{handleJoinGroup}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{request}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b else if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{type}} {\cf11{==}} {\cf2{}}{\cf3{"group_message"}}{\cf2{}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{handleGroupMessage}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{request}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b else if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{type}} {\cf11{==}} {\cf2{}}{\cf3{"who"}}{\cf2{}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{handleWho}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b else\b0 }}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf3{"\u26410?\u30693?\u28040?\u24687?\u31867?\u22411?"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{handleRegister}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{nlohmann}}{\cf2{}}{\cf11{::}}{\cf2{json}} {\cf11{&}}{\cf2{request}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string account}} {\cf11{=}} {\cf2{}}{\cf17{trim}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf17{getStringField}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{,}} {\cf2{}}{\cf3{"account"}}{\cf2{}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string nickname}} {\cf11{=}} {\cf2{}}{\cf17{trim}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf17{getStringField}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{,}} {\cf2{}}{\cf3{"nickname"}}{\cf2{}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string password}} {\cf11{=}} {\cf2{}}{\cf17{getStringField}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{,}} {\cf2{}}{\cf3{"password"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string phone}} {\cf11{=}} {\cf2{}}{\cf17{trim}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf17{getStringField}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{,}} {\cf2{}}{\cf3{"phone"}}{\cf2{}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string birthday}} {\cf11{=}} {\cf2{}}{\cf17{trim}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf17{getStringField}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{,}} {\cf2{}}{\cf3{"birthday"}}{\cf2{}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string gender}} {\cf11{=}} {\cf2{}}{\cf17{trim}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf17{getStringField}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{,}} {\cf2{}}{\cf3{"gender"}}{\cf2{}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string email}} {\cf11{=}} {\cf2{}}{\cf17{trim}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf17{getStringField}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{,}} {\cf2{}}{\cf3{"email"}}{\cf2{}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{account}}{\cf11{.}}{\cf2{}}{\cf17{empty}}{\cf2{}}{\cf11{() ||}} {\cf2{nickname}}{\cf11{.}}{\cf2{}}{\cf17{empty}}{\cf2{}}{\cf11{() ||}} {\cf2{password}}{\cf11{.}}{\cf2{}}{\cf17{empty}}{\cf2{}}{\cf11{() ||}} {\cf2{phone}}{\cf11{.}}{\cf2{}}{\cf17{empty}}{\cf2{}}{\cf11{() ||}}}\par\pard
+\cbpat1{{\cf2{        birthday}}{\cf11{.}}{\cf2{}}{\cf17{empty}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf3{"\u-29402?\u21495?\u12289?\u26165?\u31216?\u12289?\u23494?\u30721?\u12289?\u25163?\u26426?\u21495?\u12289?\u20986?\u29983?\u26085?\u26399?\u19981?\u-32515?\u20026?\u31354?"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{account}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{() >}} {\cf2{}}{\cf4{{3}{2}}}{\cf2{}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf3{"\u-29402?\u21495?\u22826?\u-27265?\u-244?\u26368?\u22810? {3}{2} \u20010?\u23383?\u31526?"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{nickname}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{() >}} {\cf2{}}{\cf4{{3}{2}}}{\cf2{}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf3{"\u26165?\u31216?\u22826?\u-27265?\u-244?\u26368?\u22810? {3}{2} \u20010?\u23383?\u31526?"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{password}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{() <}} {\cf2{}}{\cf4{{6}}}{\cf2{}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf3{"\u23494?\u30721?\u-32269?\u23569? {6} \u20301?"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{phone}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{() <}} {\cf2{}}{\cf4{{6}}} {\cf2{}}{\cf11{||}} {\cf2{phone}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{() >}} {\cf2{}}{\cf4{{2}{0}}}{\cf2{}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf3{"\u25163?\u26426?\u21495?\u26684?\u24335?\u19981?\u27491?\u30830?"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string passwordHash}} {\cf11{=}} {\cf2{}}{\cf18{PasswordHasher}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{hashPassword}}{\cf2{}}{\cf11{(}}{\cf2{password}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{createdUserId}} {\cf11{= -}}{\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{bool}} {\cf2{created}} {\cf11{=}} {\cf2{}}{\cf15{\b false\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b try\b0 }}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{        created}} {\cf11{=}} {\cf2{userRepository_}}{\cf11{.}}{\cf2{}}{\cf17{createUser}}{\cf2{}}{\cf11{(}}{\cf2{account}}{\cf11{,}} {\cf2{nickname}}{\cf11{,}} {\cf2{passwordHash}}{\cf11{,}} {\cf2{phone}}{\cf11{,}} {\cf2{birthday}}{\cf11{,}}}\par\pard
+\cbpat1{{\cf2{                                             gender}}{\cf11{,}} {\cf2{email}}{\cf11{,}} {\cf2{createdUserId}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b catch\b0 }} {\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{exception}} {\cf11{&}}{\cf2{error}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf18{spdlog}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{warn}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"register failed, error: \{\}"}}{\cf2{}}{\cf11{,}} {\cf2{error}}{\cf11{.}}{\cf2{}}{\cf17{what}}{\cf2{}}{\cf11{());}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf3{"\u27880?\u20876?\u22833?\u-29403?\u-244?\u-29402?\u21495?\u25110?\u25163?\u26426?\u21495?\u21487?\u-32515?\u24050?\u23384?\u22312?"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{created}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendJson}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{, \{}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"type"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"register_result"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"success"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf15{\b false\b0 }}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"message"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"\u-29402?\u21495?\u25110?\u25163?\u26426?\u21495?\u24050?\u23384?\u22312?"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\});}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sendJson}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{, \{}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"type"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"register_result"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"success"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf15{\b true\b0 }}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"message"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"\u27880?\u20876?\u25104?\u21151?"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"user_id"}}{\cf2{}}{\cf11{,}} {\cf2{createdUserId}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"account"}}{\cf2{}}{\cf11{,}} {\cf2{account}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"nickname"}}{\cf2{}}{\cf11{,}} {\cf2{nickname}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                           {\cf11{\});}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{handleLogin}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{nlohmann}}{\cf2{}}{\cf11{::}}{\cf2{json}} {\cf11{&}}{\cf2{request}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string account}} {\cf11{=}} {\cf2{}}{\cf17{trim}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf17{getStringField}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{,}} {\cf2{}}{\cf3{"account"}}{\cf2{}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string password}} {\cf11{=}} {\cf2{}}{\cf17{getStringField}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{,}} {\cf2{}}{\cf3{"password"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{account}}{\cf11{.}}{\cf2{}}{\cf17{empty}}{\cf2{}}{\cf11{() ||}} {\cf2{password}}{\cf11{.}}{\cf2{}}{\cf17{empty}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf3{"\u-29402?\u21495?\u25110?\u23494?\u30721?\u19981?\u-32515?\u20026?\u31354?"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{auto}} {\cf2{user}} {\cf11{=}} {\cf2{userRepository_}}{\cf11{.}}{\cf2{}}{\cf17{findByAccount}}{\cf2{}}{\cf11{(}}{\cf2{account}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{user}}{\cf11{.}}{\cf2{}}{\cf17{has_value}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendJson}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{, \{}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"type"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"login_result"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"success"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf15{\b false\b0 }}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"message"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"\u-29402?\u21495?\u19981?\u23384?\u22312?"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\});}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{}}{\cf18{PasswordHasher}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{verifyPassword}}{\cf2{}}{\cf11{(}}{\cf2{password}}{\cf11{,}} {\cf2{user}}{\cf11{->}}{\cf2{passwordHash}}{\cf11{))}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendJson}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{, \{}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"type"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"login_result"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"success"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf15{\b false\b0 }}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"message"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"\u23494?\u30721?\u-27367?\u-29713?"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\});}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    socketToSession_}}{\cf11{[}}{\cf2{clientSocket}}{\cf11{] =}}}\par\pard
+\cbpat1{{\cf2{        UserSession}}{\cf11{\{.}}{\cf2{userId}} {\cf11{=}} {\cf2{user}}{\cf11{->}}{\cf2{id}}{\cf11{, .}}{\cf2{account}} {\cf11{=}} {\cf2{user}}{\cf11{->}}{\cf2{account}}{\cf11{, .}}{\cf2{nickname}} {\cf11{=}} {\cf2{user}}{\cf11{->}}{\cf2{nickname}}{\cf11{\};}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    userIdToSocket_}}{\cf11{[}}{\cf2{user}}{\cf11{->}}{\cf2{id}}{\cf11{] =}} {\cf2{clientSocket}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sendJson}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{, \{}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"type"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"login_result"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"success"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf15{\b true\b0 }}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"message"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"\u30331?\u24405?\u25104?\u21151?"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"user_id"}}{\cf2{}}{\cf11{,}} {\cf2{user}}{\cf11{->}}{\cf2{id}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"account"}}{\cf2{}}{\cf11{,}} {\cf2{user}}{\cf11{->}}{\cf2{account}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"nickname"}}{\cf2{}}{\cf11{,}} {\cf2{user}}{\cf11{->}}{\cf2{nickname}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf5{\i // \u20860?\u23481?\u26087?\u21069?\u31471?\u23383?\u27573?\u-244?\u21518?\u-26782?\u21069?\u31471?\u20840?\u25913? nickname \u21518?\u21487?\u20197?\u21024?\i0 }}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"username"}}{\cf2{}}{\cf11{,}} {\cf2{user}}{\cf11{->}}{\cf2{nickname}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                           {\cf11{\});}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{spdlog}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{info}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"user login success, socket \{\}, account \{\}, nickname \{\}"}}{\cf2{}}{\cf11{,}} {\cf2{clientSocket}}{\cf11{,}}}\par\pard
+\cbpat1{{\cf2{                 user}}{\cf11{->}}{\cf2{account}}{\cf11{,}} {\cf2{user}}{\cf11{->}}{\cf2{nickname}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{handlePrivateMessage}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{nlohmann}}{\cf2{}}{\cf11{::}}{\cf2{json}} {\cf11{&}}{\cf2{request}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{}}{\cf17{requireLogin}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{))}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{auto}} {\cf2{sender}} {\cf11{=}} {\cf2{}}{\cf17{getSession}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{sender}}{\cf11{.}}{\cf2{}}{\cf17{has_value}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string targetAccount}} {\cf11{=}} {\cf2{}}{\cf17{trim}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf17{getStringField}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{,}} {\cf2{}}{\cf3{"to"}}{\cf2{}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string content}} {\cf11{=}} {\cf2{}}{\cf17{trim}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf17{getStringField}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{,}} {\cf2{}}{\cf3{"content"}}{\cf2{}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{targetAccount}}{\cf11{.}}{\cf2{}}{\cf17{empty}}{\cf2{}}{\cf11{() ||}} {\cf2{content}}{\cf11{.}}{\cf2{}}{\cf17{empty}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf3{"\u31169?\u-32694?\u30446?\u26631?\u-29402?\u21495?\u25110?\u20869?\u23481?\u19981?\u-32515?\u20026?\u31354?"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{auto}} {\cf2{targetUser}} {\cf11{=}} {\cf2{userRepository_}}{\cf11{.}}{\cf2{}}{\cf17{findByAccount}}{\cf2{}}{\cf11{(}}{\cf2{targetAccount}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{targetUser}}{\cf11{.}}{\cf2{}}{\cf17{has_value}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf3{"\u30446?\u26631?\u-29402?\u21495?\u19981?\u23384?\u22312?"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{savePrivateMessage}}{\cf2{}}{\cf11{(}}{\cf2{sender}}{\cf11{->}}{\cf2{userId}}{\cf11{,}} {\cf2{targetUser}}{\cf11{->}}{\cf2{id}}{\cf11{,}} {\cf2{content}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{auto}} {\cf2{targetSocketIterator}} {\cf11{=}} {\cf2{userIdToSocket_}}{\cf11{.}}{\cf2{}}{\cf17{find}}{\cf2{}}{\cf11{(}}{\cf2{targetUser}}{\cf11{->}}{\cf2{id}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{targetSocketIterator}} {\cf11{==}} {\cf2{userIdToSocket_}}{\cf11{.}}{\cf2{}}{\cf17{end}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendJson}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{, \{}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"type"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"private_message_result"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"success"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf15{\b true\b0 }}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"message"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"\u28040?\u24687?\u24050?\u20445?\u23384?\u-244?\u20294?\u23545?\u26041?\u19981?\u22312?\u32447?"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"to"}}{\cf2{}}{\cf11{,}} {\cf2{targetAccount}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"to_nickname"}}{\cf2{}}{\cf11{,}} {\cf2{targetUser}}{\cf11{->}}{\cf2{nickname}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"content"}}{\cf2{}}{\cf11{,}} {\cf2{content}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\});}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{targetSocket}} {\cf11{=}} {\cf2{targetSocketIterator}}{\cf11{->}}{\cf2{second}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sendJson}}{\cf2{}}{\cf11{(}}{\cf2{targetSocket}}{\cf11{, \{}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"type"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"private_message"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"from"}}{\cf2{}}{\cf11{,}} {\cf2{sender}}{\cf11{->}}{\cf2{nickname}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"from_account"}}{\cf2{}}{\cf11{,}} {\cf2{sender}}{\cf11{->}}{\cf2{account}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"content"}}{\cf2{}}{\cf11{,}} {\cf2{content}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                           {\cf11{\});}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sendJson}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{, \{}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"type"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"private_message_result"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"success"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf15{\b true\b0 }}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"message"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"\u21457?\u-28671?\u25104?\u21151?"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"to"}}{\cf2{}}{\cf11{,}} {\cf2{targetAccount}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"to_nickname"}}{\cf2{}}{\cf11{,}} {\cf2{targetUser}}{\cf11{->}}{\cf2{nickname}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"content"}}{\cf2{}}{\cf11{,}} {\cf2{content}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                           {\cf11{\});}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{handleCreateGroup}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{nlohmann}}{\cf2{}}{\cf11{::}}{\cf2{json}} {\cf11{&}}{\cf2{request}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{}}{\cf17{requireLogin}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{))}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{auto}} {\cf2{session}} {\cf11{=}} {\cf2{}}{\cf17{getSession}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{session}}{\cf11{.}}{\cf2{}}{\cf17{has_value}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string groupName}} {\cf11{=}} {\cf2{}}{\cf17{trim}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf17{getStringField}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{,}} {\cf2{}}{\cf3{"group_name"}}{\cf2{}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{groupName}}{\cf11{.}}{\cf2{}}{\cf17{empty}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf3{"\u32676?\u-32694?\u21517?\u31216?\u19981?\u-32515?\u20026?\u31354?"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{groupId}} {\cf11{=}} {\cf2{}}{\cf17{createGroupInDatabase}}{\cf2{}}{\cf11{(}}{\cf2{groupName}}{\cf11{,}} {\cf2{session}}{\cf11{->}}{\cf2{userId}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{addGroupMember}}{\cf2{}}{\cf11{(}}{\cf2{groupId}}{\cf11{,}} {\cf2{session}}{\cf11{->}}{\cf2{userId}}{\cf11{,}} {\cf2{}}{\cf3{"owner"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sendJson}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{, \{}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"type"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"create_group_result"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"success"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf15{\b true\b0 }}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"message"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"\u21019?\u24314?\u32676?\u-32694?\u25104?\u21151?"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"group_id"}}{\cf2{}}{\cf11{,}} {\cf2{groupId}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"group_name"}}{\cf2{}}{\cf11{,}} {\cf2{groupName}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                           {\cf11{\});}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{handleJoinGroup}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{nlohmann}}{\cf2{}}{\cf11{::}}{\cf2{json}} {\cf11{&}}{\cf2{request}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{}}{\cf17{requireLogin}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{))}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{auto}} {\cf2{session}} {\cf11{=}} {\cf2{}}{\cf17{getSession}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{session}}{\cf11{.}}{\cf2{}}{\cf17{has_value}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{groupId}} {\cf11{=}} {\cf2{}}{\cf17{getIntField}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{,}} {\cf2{}}{\cf3{"group_id"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{groupId}} {\cf11{<=}} {\cf2{}}{\cf4{{0}}}{\cf2{}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf3{"\u32676?\u21495?\u19981?\u21512?\u27861?"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{bool}} {\cf2{added}} {\cf11{=}} {\cf2{}}{\cf17{addGroupMember}}{\cf2{}}{\cf11{(}}{\cf2{groupId}}{\cf11{,}} {\cf2{session}}{\cf11{->}}{\cf2{userId}}{\cf11{,}} {\cf2{}}{\cf3{"member"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sendJson}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{, \{}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"type"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"join_group_result"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"success"}}{\cf2{}}{\cf11{,}} {\cf2{added}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"message"}}{\cf2{}}{\cf11{,}} {\cf2{added}} {\cf11{?}} {\cf2{}}{\cf3{"\u21152?\u20837?\u32676?\u-32694?\u25104?\u21151?"}}{\cf2{}} {\cf11{:}} {\cf2{}}{\cf3{"\u20320?\u24050?\u32463?\u22312?\u32676?\u-28212?\u-244?\u25110?\u-32763?\u32676?\u-32694?\u19981?\u23384?\u22312?"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"group_id"}}{\cf2{}}{\cf11{,}} {\cf2{groupId}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                           {\cf11{\});}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{handleGroupMessage}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{nlohmann}}{\cf2{}}{\cf11{::}}{\cf2{json}} {\cf11{&}}{\cf2{request}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{}}{\cf17{requireLogin}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{))}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{auto}} {\cf2{sender}} {\cf11{=}} {\cf2{}}{\cf17{getSession}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{sender}}{\cf11{.}}{\cf2{}}{\cf17{has_value}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{groupId}} {\cf11{=}} {\cf2{}}{\cf17{getIntField}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{,}} {\cf2{}}{\cf3{"group_id"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string content}} {\cf11{=}} {\cf2{}}{\cf17{trim}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf17{getStringField}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{,}} {\cf2{}}{\cf3{"content"}}{\cf2{}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{groupId}} {\cf11{<=}} {\cf2{}}{\cf4{{0}}} {\cf2{}}{\cf11{||}} {\cf2{content}}{\cf11{.}}{\cf2{}}{\cf17{empty}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf3{"\u32676?\u21495?\u25110?\u28040?\u24687?\u20869?\u23481?\u19981?\u21512?\u27861?"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{}}{\cf17{isGroupMember}}{\cf2{}}{\cf11{(}}{\cf2{groupId}}{\cf11{,}} {\cf2{sender}}{\cf11{->}}{\cf2{userId}}{\cf11{))}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf3{"\u20320?\u19981?\u22312?\u-28711?\u20010?\u32676?\u-32694?\u-28212?"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{saveGroupMessage}}{\cf2{}}{\cf11{(}}{\cf2{groupId}}{\cf11{,}} {\cf2{sender}}{\cf11{->}}{\cf2{userId}}{\cf11{,}} {\cf2{content}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{vector}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>}} {\cf2{memberUserIds}} {\cf11{=}} {\cf2{}}{\cf17{getGroupMemberUserIds}}{\cf2{}}{\cf11{(}}{\cf2{groupId}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b for\b0 }} {\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{userId}} {\cf11{:}} {\cf2{memberUserIds}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{auto}} {\cf2{socketIterator}} {\cf11{=}} {\cf2{userIdToSocket_}}{\cf11{.}}{\cf2{}}{\cf17{find}}{\cf2{}}{\cf11{(}}{\cf2{userId}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{socketIterator}} {\cf11{==}} {\cf2{userIdToSocket_}}{\cf11{.}}{\cf2{}}{\cf17{end}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf15{\b continue\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf16{int}} {\cf2{targetSocket}} {\cf11{=}} {\cf2{socketIterator}}{\cf11{->}}{\cf2{second}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sendJson}}{\cf2{}}{\cf11{(}}{\cf2{targetSocket}}{\cf11{, \{}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"type"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"group_message"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"group_id"}}{\cf2{}}{\cf11{,}} {\cf2{groupId}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"from"}}{\cf2{}}{\cf11{,}} {\cf2{sender}}{\cf11{->}}{\cf2{nickname}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"from_account"}}{\cf2{}}{\cf11{,}} {\cf2{sender}}{\cf11{->}}{\cf2{account}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                                   {\cf11{\{}}{\cf2{}}{\cf3{"content"}}{\cf2{}}{\cf11{,}} {\cf2{content}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\});}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{handleWho}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{nlohmann}}{\cf2{}}{\cf11{::}}{\cf2{json users}} {\cf11{=}} {\cf2{}}{\cf18{nlohmann}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf18{json}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{array}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b for\b0 }} {\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{const}} {\cf2{}}{\cf17{auto}} {\cf2{}}{\cf11{&[}}{\cf2{socketFd}}{\cf11{,}} {\cf2{session}}{\cf11{] :}} {\cf2{socketToSession_}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{        users}}{\cf11{.}}{\cf2{}}{\cf17{push_back}}{\cf2{}}{\cf11{(\{}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf11{\{}}{\cf2{}}{\cf3{"socket"}}{\cf2{}}{\cf11{,}} {\cf2{socketFd}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf11{\{}}{\cf2{}}{\cf3{"user_id"}}{\cf2{}}{\cf11{,}} {\cf2{session}}{\cf11{.}}{\cf2{userId}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf11{\{}}{\cf2{}}{\cf3{"account"}}{\cf2{}}{\cf11{,}} {\cf2{session}}{\cf11{.}}{\cf2{account}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf11{\{}}{\cf2{}}{\cf3{"nickname"}}{\cf2{}}{\cf11{,}} {\cf2{session}}{\cf11{.}}{\cf2{nickname}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf5{\i // \u20860?\u23481?\u26087?\u21069?\u31471?\u23383?\u27573?\u-244?\u21518?\u-26782?\u21069?\u31471?\u20840?\u25913? nickname \u21518?\u21487?\u20197?\u21024?\i0 }}}\par\pard
+\cbpat1{{\cf2{}}            {\cf11{\{}}{\cf2{}}{\cf3{"username"}}{\cf2{}}{\cf11{,}} {\cf2{session}}{\cf11{.}}{\cf2{nickname}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf11{\});}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sendJson}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{, \{}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"type"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"who_result"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"users"}}{\cf2{}}{\cf11{,}} {\cf2{users}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                           {\cf11{\});}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{optional}}{\cf11{<}}{\cf2{UserSession}}{\cf11{>}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{getSession}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{)}} {\cf2{}}{\cf16{const}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{auto}} {\cf2{iterator}} {\cf11{=}} {\cf2{socketToSession_}}{\cf11{.}}{\cf2{}}{\cf17{find}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{iterator}} {\cf11{==}} {\cf2{socketToSession_}}{\cf11{.}}{\cf2{}}{\cf17{end}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{nullopt}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return\b0 }} {\cf2{iterator}}{\cf11{->}}{\cf2{second}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{bool}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{requireLogin}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{socketToSession_}}{\cf11{.}}{\cf2{}}{\cf17{find}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{) !=}} {\cf2{socketToSession_}}{\cf11{.}}{\cf2{}}{\cf17{end}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return true\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf3{"\u-29705?\u20808?\u30331?\u24405?"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return false\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{sendJson}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{nlohmann}}{\cf2{}}{\cf11{::}}{\cf2{json}} {\cf11{&}}{\cf2{response}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    webSocketServer_}}{\cf11{.}}{\cf2{}}{\cf17{sendTextFrame}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{response}}{\cf11{.}}{\cf2{}}{\cf17{dump}}{\cf2{}}{\cf11{());}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{sendError}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view message}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sendJson}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{, \{}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"type"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"error"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"message"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{string}}{\cf2{}}{\cf11{(}}{\cf2{message}}{\cf11{)\},}}}\par\pard
+\cbpat1{{\cf2{}}                           {\cf11{\});}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{sendSystemMessage}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view message}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sendJson}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{, \{}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"type"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf3{"system"}}{\cf2{}}{\cf11{\},}}}\par\pard
+\cbpat1{{\cf2{}}                               {\cf11{\{}}{\cf2{}}{\cf3{"message"}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{string}}{\cf2{}}{\cf11{(}}{\cf2{message}}{\cf11{)\},}}}\par\pard
+\cbpat1{{\cf2{}}                           {\cf11{\});}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{int}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{createGroupInDatabase}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view groupName}}{\cf11{,}} {\cf2{}}{\cf16{int}} {\cf2{ownerUserId}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}}} {\cf11{*}}{\cf2{database}} {\cf11{=}} {\cf2{database_}}{\cf11{.}}{\cf2{}}{\cf17{raw}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{const char}} {\cf2{}}{\cf11{*}}{\cf2{sql}} {\cf11{=}} {\cf2{R}}{\cf3{"sql(}}}\par\pard
+\cbpat1{{\cf3{        INSERT INTO chat_groups (name, owner_user_id)}}}\par\pard
+\cbpat1{{\cf3{        VALUES (?, ?);}}}\par\pard
+\cbpat1{{\cf3{    )sql"}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}_stmt}} {\cf11{*}}{\cf2{statement}} {\cf11{=}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{prepareResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_prepare_v{2}}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{sql}}{\cf11{, -}}{\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{, &}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{prepareResult}} {\cf11{!=}} {\cf2{SQLITE_OK}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b throw\b0 }} {\cf2{}}{\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf3{"prepare create group failed"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_text}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{,}} {\cf2{groupName}}{\cf11{.}}{\cf2{}}{\cf17{data}}{\cf2{}}{\cf11{(),}} {\cf2{}}{\cf15{\b static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>(}}{\cf2{groupName}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{()),}}}\par\pard
+\cbpat1{{\cf2{                      SQLITE_TRANSIENT}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_int}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{2}}}{\cf2{}}{\cf11{,}} {\cf2{ownerUserId}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{stepResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_step}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{stepResult}} {\cf11{!=}} {\cf2{SQLITE_DONE}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b throw\b0 }} {\cf2{}}{\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf3{"insert group failed"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>(}}{\cf2{}}{\cf17{sqlite{3}_last_insert_rowid}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{bool}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{addGroupMember}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{groupId}}{\cf11{,}} {\cf2{}}{\cf16{int}} {\cf2{userId}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view role}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}}} {\cf11{*}}{\cf2{database}} {\cf11{=}} {\cf2{database_}}{\cf11{.}}{\cf2{}}{\cf17{raw}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{const char}} {\cf2{}}{\cf11{*}}{\cf2{sql}} {\cf11{=}} {\cf2{R}}{\cf3{"sql(}}}\par\pard
+\cbpat1{{\cf3{        INSERT OR IGNORE INTO group_members (group_id, user_id, role)}}}\par\pard
+\cbpat1{{\cf3{        VALUES (?, ?, ?);}}}\par\pard
+\cbpat1{{\cf3{    )sql"}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}_stmt}} {\cf11{*}}{\cf2{statement}} {\cf11{=}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{prepareResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_prepare_v{2}}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{sql}}{\cf11{, -}}{\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{, &}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{prepareResult}} {\cf11{!=}} {\cf2{SQLITE_OK}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b throw\b0 }} {\cf2{}}{\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf3{"prepare add group member failed"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_int}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{,}} {\cf2{groupId}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_int}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{2}}}{\cf2{}}{\cf11{,}} {\cf2{userId}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_text}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{3}}}{\cf2{}}{\cf11{,}} {\cf2{role}}{\cf11{.}}{\cf2{}}{\cf17{data}}{\cf2{}}{\cf11{(),}} {\cf2{}}{\cf15{\b static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>(}}{\cf2{role}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{()),}} {\cf2{SQLITE_TRANSIENT}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{stepResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_step}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{stepResult}} {\cf11{!=}} {\cf2{SQLITE_DONE}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return false\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{changedRows}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_changes}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return\b0 }} {\cf2{changedRows}} {\cf11{>}} {\cf2{}}{\cf4{{0}}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{bool}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{isGroupMember}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{groupId}}{\cf11{,}} {\cf2{}}{\cf16{int}} {\cf2{userId}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}}} {\cf11{*}}{\cf2{database}} {\cf11{=}} {\cf2{database_}}{\cf11{.}}{\cf2{}}{\cf17{raw}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{const char}} {\cf2{}}{\cf11{*}}{\cf2{sql}} {\cf11{=}} {\cf2{R}}{\cf3{"sql(}}}\par\pard
+\cbpat1{{\cf3{        SELECT {1}}}}\par\pard
+\cbpat1{{\cf3{        FROM group_members}}}\par\pard
+\cbpat1{{\cf3{        WHERE group_id = ? AND user_id = ?;}}}\par\pard
+\cbpat1{{\cf3{    )sql"}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}_stmt}} {\cf11{*}}{\cf2{statement}} {\cf11{=}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{prepareResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_prepare_v{2}}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{sql}}{\cf11{, -}}{\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{, &}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{prepareResult}} {\cf11{!=}} {\cf2{SQLITE_OK}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b throw\b0 }} {\cf2{}}{\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf3{"prepare is group member failed"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_int}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{,}} {\cf2{groupId}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_int}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{2}}}{\cf2{}}{\cf11{,}} {\cf2{userId}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{stepResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_step}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{bool}} {\cf2{exists}} {\cf11{=}} {\cf2{stepResult}} {\cf11{==}} {\cf2{SQLITE_ROW}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return\b0 }} {\cf2{exists}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{vector}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{getGroupMemberUserIds}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{groupId}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}}} {\cf11{*}}{\cf2{database}} {\cf11{=}} {\cf2{database_}}{\cf11{.}}{\cf2{}}{\cf17{raw}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{const char}} {\cf2{}}{\cf11{*}}{\cf2{sql}} {\cf11{=}} {\cf2{R}}{\cf3{"sql(}}}\par\pard
+\cbpat1{{\cf3{        SELECT user_id}}}\par\pard
+\cbpat1{{\cf3{        FROM group_members}}}\par\pard
+\cbpat1{{\cf3{        WHERE group_id = ?;}}}\par\pard
+\cbpat1{{\cf3{    )sql"}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}_stmt}} {\cf11{*}}{\cf2{statement}} {\cf11{=}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{prepareResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_prepare_v{2}}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{sql}}{\cf11{, -}}{\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{, &}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{prepareResult}} {\cf11{!=}} {\cf2{SQLITE_OK}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b throw\b0 }} {\cf2{}}{\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf3{"prepare get group members failed"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_int}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{,}} {\cf2{groupId}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{vector}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>}} {\cf2{userIds}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b while\b0 }} {\cf2{}}{\cf11{(}}{\cf2{}}{\cf17{sqlite{3}_step}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{) ==}} {\cf2{SQLITE_ROW}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{        userIds}}{\cf11{.}}{\cf2{}}{\cf17{push_back}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf17{sqlite{3}_column_int}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{0}}}{\cf2{}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return\b0 }} {\cf2{userIds}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{savePrivateMessage}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{fromUserId}}{\cf11{,}} {\cf2{}}{\cf16{int}} {\cf2{toUserId}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view content}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}}} {\cf11{*}}{\cf2{database}} {\cf11{=}} {\cf2{database_}}{\cf11{.}}{\cf2{}}{\cf17{raw}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{const char}} {\cf2{}}{\cf11{*}}{\cf2{sql}} {\cf11{=}} {\cf2{R}}{\cf3{"sql(}}}\par\pard
+\cbpat1{{\cf3{        INSERT INTO private_messages (from_user_id, to_user_id, content)}}}\par\pard
+\cbpat1{{\cf3{        VALUES (?, ?, ?);}}}\par\pard
+\cbpat1{{\cf3{    )sql"}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}_stmt}} {\cf11{*}}{\cf2{statement}} {\cf11{=}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{prepareResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_prepare_v{2}}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{sql}}{\cf11{, -}}{\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{, &}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{prepareResult}} {\cf11{!=}} {\cf2{SQLITE_OK}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b throw\b0 }} {\cf2{}}{\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf3{"prepare save private message failed"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_int}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{,}} {\cf2{fromUserId}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_int}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{2}}}{\cf2{}}{\cf11{,}} {\cf2{toUserId}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_text}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{3}}}{\cf2{}}{\cf11{,}} {\cf2{content}}{\cf11{.}}{\cf2{}}{\cf17{data}}{\cf2{}}{\cf11{(),}} {\cf2{}}{\cf15{\b static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>(}}{\cf2{content}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{()),}}}\par\pard
+\cbpat1{{\cf2{                      SQLITE_TRANSIENT}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{stepResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_step}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{stepResult}} {\cf11{!=}} {\cf2{SQLITE_DONE}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b throw\b0 }} {\cf2{}}{\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf3{"save private message failed"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{saveGroupMessage}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{groupId}}{\cf11{,}} {\cf2{}}{\cf16{int}} {\cf2{fromUserId}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view content}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}}} {\cf11{*}}{\cf2{database}} {\cf11{=}} {\cf2{database_}}{\cf11{.}}{\cf2{}}{\cf17{raw}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{const char}} {\cf2{}}{\cf11{*}}{\cf2{sql}} {\cf11{=}} {\cf2{R}}{\cf3{"sql(}}}\par\pard
+\cbpat1{{\cf3{        INSERT INTO group_messages (group_id, from_user_id, content)}}}\par\pard
+\cbpat1{{\cf3{        VALUES (?, ?, ?);}}}\par\pard
+\cbpat1{{\cf3{    )sql"}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}_stmt}} {\cf11{*}}{\cf2{statement}} {\cf11{=}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{prepareResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_prepare_v{2}}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{sql}}{\cf11{, -}}{\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{, &}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{prepareResult}} {\cf11{!=}} {\cf2{SQLITE_OK}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b throw\b0 }} {\cf2{}}{\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf3{"prepare save group message failed"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_int}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{1}}}{\cf2{}}{\cf11{,}} {\cf2{groupId}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_int}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{2}}}{\cf2{}}{\cf11{,}} {\cf2{fromUserId}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_bind_text}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{,}} {\cf2{}}{\cf4{{3}}}{\cf2{}}{\cf11{,}} {\cf2{content}}{\cf11{.}}{\cf2{}}{\cf17{data}}{\cf2{}}{\cf11{(),}} {\cf2{}}{\cf15{\b static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>(}}{\cf2{content}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{()),}}}\par\pard
+\cbpat1{{\cf2{                      SQLITE_TRANSIENT}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{int}} {\cf2{stepResult}} {\cf11{=}} {\cf2{}}{\cf17{sqlite{3}_step}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{stepResult}} {\cf11{!=}} {\cf2{SQLITE_DONE}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b throw\b0 }} {\cf2{}}{\cf17{makeSqliteError}}{\cf2{}}{\cf11{(}}{\cf2{database}}{\cf11{,}} {\cf2{}}{\cf3{"save group message failed"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{sqlite{3}_finalize}}{\cf2{}}{\cf11{(}}{\cf2{statement}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{optional}}{\cf11{<}}{\cf2{UserRecord}}{\cf11{>}} {\cf2{}}{\cf18{ChatServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{findUserByAccount}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view account}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return\b0 }} {\cf2{userRepository_}}{\cf11{.}}{\cf2{}}{\cf17{findByAccount}}{\cf2{}}{\cf11{(}}{\cf2{account}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}{\cf2{}}}\par\pard
+\cbpat1{}}

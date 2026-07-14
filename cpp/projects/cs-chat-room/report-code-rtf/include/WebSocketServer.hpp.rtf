@@ -1,0 +1,50 @@
+{\rtf1\ansi \deff1{\fonttbl{\f1\fmodern\fprq1\fcharset0 Courier New;}}{\colortbl;\red224\green234\blue238;\red00\green00\blue00;\red191\green03\blue03;\red176\green126\blue00;\red131\green129\blue131;\red131\green129\blue131;\red255\green00\blue255;\red00\green130\blue00;\red129\green129\blue00;\red85\green85\blue85;\red00\green00\blue00;\red00\green87\blue174;\red255\green00\blue00;\red255\green00\blue00;\red00\green00\blue00;\red00\green87\blue174;\red01\green01\blue129;\red13\green91\blue195;\red117\green13\blue195;}
+\paperw11905\paperh16837\margl1134\margr1134\margt1134\margb1134\sectd\plain\f1\fs20
+\pard \cbpat1{{\cf2{}}{\cf8{#pragma once}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include}} {\cf9{"AsyncTcpServer.hpp"}}{\cf8{}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <functional>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <string>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <string_view>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <unordered_map>}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{enum}} {\cf2{}}{\cf17{class}} {\cf2{ClientState}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    HttpHandshake}}{\cf11{,}}}\par\pard
+\cbpat1{{\cf2{    WebSocketConnected}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\};}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf17{class}} {\cf2{WebSocketServer}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}  {\cf17{public}}{\cf2{}}{\cf11{:}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{explicit WebSocketServer}}{\cf2{}}{\cf11{(}}{\cf2{AsyncTcpServer}} {\cf11{&}}{\cf2{tcpServer}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{WebSocketServer}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{const}} {\cf2{WebSocketServer}} {\cf11{&) =}} {\cf2{}}{\cf15{\b delete\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{    WebSocketServer}} {\cf11{&}}{\cf2{}}{\cf17{operator}}{\cf2{}}{\cf11{=(}}{\cf2{}}{\cf16{const}} {\cf2{WebSocketServer}} {\cf11{&) =}} {\cf2{}}{\cf15{\b delete\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{void}} {\cf2{}}{\cf17{setClientConnectedCallback}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{function}}{\cf11{<}}{\cf2{}}{\cf16{void}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{)>}} {\cf2{callback}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{void}} {\cf2{}}{\cf17{setClientDisconnectedCallback}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{function}}{\cf11{<}}{\cf2{}}{\cf16{void}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{)>}} {\cf2{callback}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{void}} {\cf2{}}{\cf17{setTextCallback}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{function}}{\cf11{<}}{\cf2{}}{\cf16{void}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view}}{\cf11{)>}} {\cf2{callback}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{void}} {\cf2{}}{\cf17{handleTcpConnected}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{void}} {\cf2{}}{\cf17{handleTcpDisconnected}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{void}} {\cf2{}}{\cf17{handleTcpInput}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf11{&}}{\cf2{inputBuffer}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{void}} {\cf2{}}{\cf17{sendTextFrame}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view text}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{void}} {\cf2{}}{\cf17{broadcastTextFrame}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{senderSocket}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view text}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}  {\cf17{private}}{\cf2{}}{\cf11{:}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{void}} {\cf2{}}{\cf17{onWebSocketText}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view text}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}  {\cf17{private}}{\cf2{}}{\cf11{:}}}\par\pard
+\cbpat1{{\cf2{    AsyncTcpServer}} {\cf11{&}}{\cf2{tcpServer_}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{unordered_map}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{,}} {\cf2{ClientState}}{\cf11{>}} {\cf2{clientStates_}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{function}}{\cf11{<}}{\cf2{}}{\cf16{void}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{)>}} {\cf2{clientConnectedCallback_}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{function}}{\cf11{<}}{\cf2{}}{\cf16{void}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{)>}} {\cf2{clientDisconnectedCallback_}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{function}}{\cf11{<}}{\cf2{}}{\cf16{void}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view}}{\cf11{)>}} {\cf2{textCallback_}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\};}}{\cf2{}}}\par\pard
+\cbpat1{}}

@@ -1,0 +1,27 @@
+{\rtf1\ansi \deff1{\fonttbl{\f1\fmodern\fprq1\fcharset0 Courier New;}}{\colortbl;\red224\green234\blue238;\red00\green00\blue00;\red191\green03\blue03;\red176\green126\blue00;\red131\green129\blue131;\red131\green129\blue131;\red255\green00\blue255;\red00\green130\blue00;\red129\green129\blue00;\red85\green85\blue85;\red00\green00\blue00;\red00\green87\blue174;\red255\green00\blue00;\red255\green00\blue00;\red00\green00\blue00;\red00\green87\blue174;\red01\green01\blue129;\red13\green91\blue195;\red117\green13\blue195;}
+\paperw11905\paperh16837\margl1134\margr1134\margt1134\margb1134\sectd\plain\f1\fs20
+\pard \cbpat1{{\cf2{}}{\cf8{#pragma once}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <sqlite{3}.h>}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <string>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <string_view>}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf17{class}} {\cf2{Database}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}  {\cf17{public}}{\cf2{}}{\cf11{:}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{explicit Database}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string databasePath}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{~}}{\cf2{}}{\cf17{Database}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{Database}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{const}} {\cf2{Database}} {\cf11{&) =}} {\cf2{}}{\cf15{\b delete\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{    Database}} {\cf11{&}}{\cf2{}}{\cf17{operator}}{\cf2{}}{\cf11{=(}}{\cf2{}}{\cf16{const}} {\cf2{Database}} {\cf11{&) =}} {\cf2{}}{\cf15{\b delete\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}}} {\cf11{*}}{\cf2{}}{\cf17{raw}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{void}} {\cf2{}}{\cf17{execute}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view sql}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{void}} {\cf2{}}{\cf17{initializeSchema}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}  {\cf17{private}}{\cf2{}}{\cf11{:}}}\par\pard
+\cbpat1{{\cf2{    sqlite{3}}} {\cf11{*}}{\cf2{database_}}{\cf11{\{}}{\cf2{}}{\cf17{nullptr}}{\cf2{}}{\cf11{\};}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\};}}{\cf2{}}}\par\pard
+\cbpat1{}}

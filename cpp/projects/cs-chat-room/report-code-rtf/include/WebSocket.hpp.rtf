@@ -1,0 +1,48 @@
+{\rtf1\ansi \deff1{\fonttbl{\f1\fmodern\fprq1\fcharset0 Courier New;}}{\colortbl;\red224\green234\blue238;\red00\green00\blue00;\red191\green03\blue03;\red176\green126\blue00;\red131\green129\blue131;\red131\green129\blue131;\red255\green00\blue255;\red00\green130\blue00;\red129\green129\blue00;\red85\green85\blue85;\red00\green00\blue00;\red00\green87\blue174;\red255\green00\blue00;\red255\green00\blue00;\red00\green00\blue00;\red00\green87\blue174;\red01\green01\blue129;\red13\green91\blue195;\red117\green13\blue195;}
+\paperw11905\paperh16837\margl1134\margr1134\margt1134\margb1134\sectd\plain\f1\fs20
+\pard \cbpat1{{\cf2{}}{\cf8{#pragma once}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <cstddef>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <cstdint>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <optional>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <string>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <string_view>}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf17{class}} {\cf2{WebSocket}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}  {\cf17{public}}{\cf2{}}{\cf11{:}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{enum}} {\cf2{}}{\cf17{class}} {\cf2{Opcode}} {\cf11{:}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf16{uint{8}_t}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{        Continuation}} {\cf11{=}} {\cf2{}}{\cf4{{0}x{0}}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf5{\i // \u21518?\u32493?\u20998?\u29255?\u24103?\u-244?\u26242?\u26102?\u21487?\u20197?\u19981?\u25903?\u25345?\i0 }}}\par\pard
+\cbpat1{{\cf2{        Text}} {\cf11{=}} {\cf2{}}{\cf4{{0}x{1}}}{\cf2{}}{\cf11{,}}         {\cf2{}}{\cf5{\i // \u25991?\u26412?\u28040?\u24687?\u-244?\u27604?\u22914?\u-32694?\u22825?\u23460?\u25991?\u23383?\i0 }}}\par\pard
+\cbpat1{{\cf2{        Binary}} {\cf11{=}} {\cf2{}}{\cf4{{0}x{2}}}{\cf2{}}{\cf11{,}}       {\cf2{}}{\cf5{\i // \u20108?\u-28709?\u21046?\u28040?\u24687?\u-244?\u27604?\u22914?\u22270?\u29255?\u12289?\u25991?\u20214?\i0 }}}\par\pard
+\cbpat1{{\cf2{        Close}} {\cf11{=}} {\cf2{}}{\cf4{{0}x{8}}}{\cf2{}}{\cf11{,}}        {\cf2{}}{\cf5{\i // \u23545?\u26041?\u-30335?\u20851?\u-27155? WebSocket\i0 }}}\par\pard
+\cbpat1{{\cf2{        Ping}} {\cf11{=}} {\cf2{}}{\cf4{{0}x{9}}}{\cf2{}}{\cf11{,}}         {\cf2{}}{\cf5{\i // \u23545?\u26041? ping \u20320?\i0 }}}\par\pard
+\cbpat1{{\cf2{        Pong}} {\cf11{=}} {\cf2{}}{\cf4{{0}xA}}          {\cf2{}}{\cf5{\i // \u20320?\u22238?\u22797? pong\i0 }}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\};}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{struct}} {\cf2{Frame}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf16{bool}} {\cf2{fin}}{\cf11{\{\};}}}\par\pard
+\cbpat1{{\cf2{        Opcode opcode}}{\cf11{\{\};}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string payload}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\};}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{WebSocket}}{\cf2{}}{\cf11{() =}} {\cf2{}}{\cf15{\b delete\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{static bool}} {\cf2{}}{\cf17{hasCompleteHandshakeRequest}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf11{&}}{\cf2{buffer}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{static}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf17{buildHandshakeResponse}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf11{&}}{\cf2{request}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{static}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{optional}}{\cf11{<}}{\cf2{Frame}}{\cf11{>}} {\cf2{}}{\cf17{tryDecodeFrame}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf11{&}}{\cf2{buffer}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{static}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf17{buildTextFrame}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view text}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{static}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf17{buildBinaryFrame}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view data}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{static}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf17{buildPongFrame}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view payload}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{static}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf17{buildCloseFrame}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}  {\cf17{private}}{\cf2{}}{\cf11{:}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{static}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf17{getHeaderValue}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf11{&}}{\cf2{request}}{\cf11{,}}}\par\pard
+\cbpat1{{\cf2{}}                                      {\cf16{const}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view headerName}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{static}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf17{sha{1}Base{6}{4}}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf11{&}}{\cf2{input}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{static}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf17{base{6}{4}Encode}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{const unsigned char}} {\cf2{}}{\cf11{*}}{\cf2{data}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf16{size_t}} {\cf2{length}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\};}}{\cf2{}}}\par\pard
+\cbpat1{}}

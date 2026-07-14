@@ -1,0 +1,375 @@
+{\rtf1\ansi \deff1{\fonttbl{\f1\fmodern\fprq1\fcharset0 Courier New;}}{\colortbl;\red224\green234\blue238;\red00\green00\blue00;\red191\green03\blue03;\red176\green126\blue00;\red131\green129\blue131;\red131\green129\blue131;\red255\green00\blue255;\red00\green130\blue00;\red129\green129\blue00;\red85\green85\blue85;\red00\green00\blue00;\red00\green87\blue174;\red255\green00\blue00;\red255\green00\blue00;\red00\green00\blue00;\red00\green87\blue174;\red01\green01\blue129;\red13\green91\blue195;\red117\green13\blue195;}
+\paperw11905\paperh16837\margl1134\margr1134\margt1134\margb1134\sectd\plain\f1\fs20
+\pard \cbpat1{{\cf2{}}{\cf8{#include}} {\cf9{"WebSocketServer.hpp"}}{\cf8{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include}} {\cf9{"WebSocket.hpp"}}{\cf8{}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <optional>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <spdlog/spdlog.h>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <utility>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <vector>}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <algorithm>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <cctype>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <string>}}}\par\pard
+\cbpat1{{\cf2{}}{\cf8{#include <string_view>}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf15{\b namespace\b0 }}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf17{toLowerCopy}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view value}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf17{result}}{\cf2{}}{\cf11{(}}{\cf2{value}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{transform}}{\cf2{}}{\cf11{(}}{\cf2{result}}{\cf11{.}}{\cf2{}}{\cf17{begin}}{\cf2{}}{\cf11{(),}} {\cf2{result}}{\cf11{.}}{\cf2{}}{\cf17{end}}{\cf2{}}{\cf11{(),}} {\cf2{result}}{\cf11{.}}{\cf2{}}{\cf17{begin}}{\cf2{}}{\cf11{(),}}}\par\pard
+\cbpat1{{\cf2{}}                   {\cf11{[](}}{\cf2{}}{\cf16{unsigned char}} {\cf2{ch}}{\cf11{) \{}} {\cf2{}}{\cf15{\b return static_cast\b0 }}{\cf2{}}{\cf11{<}}{\cf2{}}{\cf16{char}}{\cf2{}}{\cf11{>(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{tolower}}{\cf2{}}{\cf11{(}}{\cf2{ch}}{\cf11{)); \});}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return\b0 }} {\cf2{result}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{bool}} {\cf2{}}{\cf17{isWebSocketUpgradeRequest}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view request}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string lowerRequest}} {\cf11{=}} {\cf2{}}{\cf17{toLowerCopy}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return\b0 }} {\cf2{lowerRequest}}{\cf11{.}}{\cf2{}}{\cf17{find}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"upgrade: websocket"}}{\cf2{}}{\cf11{) !=}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf18{string}}{\cf2{}}{\cf11{::}}{\cf2{npos}} {\cf11{&&}}}\par\pard
+\cbpat1{{\cf2{           lowerRequest}}{\cf11{.}}{\cf2{}}{\cf17{find}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"sec-websocket-key:"}}{\cf2{}}{\cf11{) !=}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf18{string}}{\cf2{}}{\cf11{::}}{\cf2{npos}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf17{buildServerDashboardHtml}}{\cf2{}}{\cf11{()}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return\b0 }} {\cf2{R}}{\cf3{"html(}}}\par\pard
+\cbpat1{{\cf3{<!DOCTYPE html>}}}\par\pard
+\cbpat1{{\cf3{<html lang="}}{\cf2{zh}}{\cf11{-}}{\cf2{CN}}{\cf3{">}}}\par\pard
+\cbpat1{{\cf3{<head>}}}\par\pard
+\cbpat1{{\cf3{    <meta charset="}}{\cf2{UTF}}{\cf11{-}}{\cf2{}}{\cf4{{8}}}{\cf2{}}{\cf3{">}}}\par\pard
+\cbpat1{{\cf3{    <title>\u-32694?\u22825?\u23460?\u26381?\u21153?\u22120?\u25511?\u21046?\u21488?</title>}}}\par\pard
+\cbpat1{{\cf3{    <style>}}}\par\pard
+\cbpat1{{\cf3{        * \{}}}\par\pard
+\cbpat1{{\cf3{            box-sizing: border-box;}}}\par\pard
+\cbpat1{{\cf3{        \}}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{        body \{}}}\par\pard
+\cbpat1{{\cf3{            margin: {0};}}}\par\pard
+\cbpat1{{\cf3{            min-height: {1}{0}{0}vh;}}}\par\pard
+\cbpat1{{\cf3{            font-family: Arial, "}}{\cf2{Microsoft YaHei}}{\cf3{", sans-serif;}}}\par\pard
+\cbpat1{{\cf3{            background: linear-gradient({1}{3}{5}deg, #{1}d{2}{6}{7}{1}, #c{3}{3}{7}{6}{4});}}}\par\pard
+\cbpat1{{\cf3{            color: #ffffff;}}}\par\pard
+\cbpat1{{\cf3{            display: flex;}}}\par\pard
+\cbpat1{{\cf3{            align-items: center;}}}\par\pard
+\cbpat1{{\cf3{            justify-content: center;}}}\par\pard
+\cbpat1{{\cf3{        \}}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{        .panel \{}}}\par\pard
+\cbpat1{{\cf3{            width: {7}{6}{0}px;}}}\par\pard
+\cbpat1{{\cf3{            padding: {3}{6}px;}}}\par\pard
+\cbpat1{{\cf3{            border-radius: {2}{2}px;}}}\par\pard
+\cbpat1{{\cf3{            background: rgba({2}{5}{5}, {2}{5}{5}, {2}{5}{5}, {0}.{1}{3});}}}\par\pard
+\cbpat1{{\cf3{            box-shadow: {0} {2}{4}px {8}{0}px rgba({0}, {0}, {0}, {0}.{3}{5});}}}\par\pard
+\cbpat1{{\cf3{            backdrop-filter: blur({1}{6}px);}}}\par\pard
+\cbpat1{{\cf3{        \}}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{        h{1} \{}}}\par\pard
+\cbpat1{{\cf3{            margin: {0} {0} {1}{2}px;}}}\par\pard
+\cbpat1{{\cf3{            font-size: {3}{4}px;}}}\par\pard
+\cbpat1{{\cf3{        \}}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{        .subtitle \{}}}\par\pard
+\cbpat1{{\cf3{            margin-bottom: {2}{8}px;}}}\par\pard
+\cbpat1{{\cf3{            opacity: {0}.{8}{5};}}}\par\pard
+\cbpat1{{\cf3{            font-size: {1}{6}px;}}}\par\pard
+\cbpat1{{\cf3{        \}}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{        .grid \{}}}\par\pard
+\cbpat1{{\cf3{            display: grid;}}}\par\pard
+\cbpat1{{\cf3{            grid-template-columns: repeat({2}, {1}fr);}}}\par\pard
+\cbpat1{{\cf3{            gap: {1}{6}px;}}}\par\pard
+\cbpat1{{\cf3{            margin-bottom: {2}{6}px;}}}\par\pard
+\cbpat1{{\cf3{        \}}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{        .card \{}}}\par\pard
+\cbpat1{{\cf3{            padding: {1}{8}px;}}}\par\pard
+\cbpat1{{\cf3{            border-radius: {1}{6}px;}}}\par\pard
+\cbpat1{{\cf3{            background: rgba({2}{5}{5}, {2}{5}{5}, {2}{5}{5}, {0}.{1}{6});}}}\par\pard
+\cbpat1{{\cf3{        \}}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{        .label \{}}}\par\pard
+\cbpat1{{\cf3{            font-size: {1}{4}px;}}}\par\pard
+\cbpat1{{\cf3{            opacity: {0}.{7}{5};}}}\par\pard
+\cbpat1{{\cf3{            margin-bottom: {8}px;}}}\par\pard
+\cbpat1{{\cf3{        \}}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{        .value \{}}}\par\pard
+\cbpat1{{\cf3{            font-size: {2}{2}px;}}}\par\pard
+\cbpat1{{\cf3{            font-weight: bold;}}}\par\pard
+\cbpat1{{\cf3{        \}}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{        .status \{}}}\par\pard
+\cbpat1{{\cf3{            display: inline-flex;}}}\par\pard
+\cbpat1{{\cf3{            align-items: center;}}}\par\pard
+\cbpat1{{\cf3{            gap: {1}{0}px;}}}\par\pard
+\cbpat1{{\cf3{            padding: {1}{2}px {1}{6}px;}}}\par\pard
+\cbpat1{{\cf3{            border-radius: {9}{9}{9}px;}}}\par\pard
+\cbpat1{{\cf3{            background: rgba({0}, {2}{5}{5}, {1}{5}{0}, {0}.{2});}}}\par\pard
+\cbpat1{{\cf3{            color: #b{8}ffd{8};}}}\par\pard
+\cbpat1{{\cf3{            font-weight: bold;}}}\par\pard
+\cbpat1{{\cf3{        \}}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{        .dot \{}}}\par\pard
+\cbpat1{{\cf3{            width: {1}{2}px;}}}\par\pard
+\cbpat1{{\cf3{            height: {1}{2}px;}}}\par\pard
+\cbpat1{{\cf3{            border-radius: {9}{9}{9}px;}}}\par\pard
+\cbpat1{{\cf3{            background: #{3}{8}ff{9}{9};}}}\par\pard
+\cbpat1{{\cf3{            box-shadow: {0} {0} {1}{6}px #{3}{8}ff{9}{9};}}}\par\pard
+\cbpat1{{\cf3{        \}}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{        .desc \{}}}\par\pard
+\cbpat1{{\cf3{            margin-top: {2}{4}px;}}}\par\pard
+\cbpat1{{\cf3{            line-height: {1}.{8};}}}\par\pard
+\cbpat1{{\cf3{            opacity: {0}.{9};}}}\par\pard
+\cbpat1{{\cf3{        \}}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{        code \{}}}\par\pard
+\cbpat1{{\cf3{            padding: {3}px {7}px;}}}\par\pard
+\cbpat1{{\cf3{            border-radius: {6}px;}}}\par\pard
+\cbpat1{{\cf3{            background: rgba({0}, {0}, {0}, {0}.{2}{5});}}}\par\pard
+\cbpat1{{\cf3{        \}}}}\par\pard
+\cbpat1{{\cf3{    </style>}}}\par\pard
+\cbpat1{{\cf3{</head>}}}\par\pard
+\cbpat1{{\cf3{<body>}}}\par\pard
+\cbpat1{{\cf3{    <div class="}}{\cf2{panel}}{\cf3{">}}}\par\pard
+\cbpat1{{\cf3{        <div class="}}{\cf2{status}}{\cf3{">}}}\par\pard
+\cbpat1{{\cf3{            <span class="}}{\cf2{dot}}{\cf3{"></span>}}}\par\pard
+\cbpat1{{\cf3{            \u26381?\u21153?\u22120?\u27491?\u22312?\u-28720?\u-30644?}}}\par\pard
+\cbpat1{{\cf3{        </div>}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{        <h{1}>\u-32694?\u22825?\u23460?\u26381?\u21153?\u22120?\u25511?\u21046?\u21488?</h{1}>}}}\par\pard
+\cbpat1{{\cf3{        <div class="}}{\cf2{subtitle}}{\cf3{">C++ / epoll / WebSocket / SQLite \u-32694?\u22825?\u26381?\u21153?\u22120?</div>}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{        <div class="}}{\cf2{grid}}{\cf3{">}}}\par\pard
+\cbpat1{{\cf3{            <div class="}}{\cf2{card}}{\cf3{">}}}\par\pard
+\cbpat1{{\cf3{                <div class="}}{\cf2{label}}{\cf3{">\u30417?\u21548?\u31471?\u21475?</div>}}}\par\pard
+\cbpat1{{\cf3{                <div class="}}{\cf2{value}}{\cf3{">{2}{0}{0}{6}</div>}}}\par\pard
+\cbpat1{{\cf3{            </div>}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{            <div class="}}{\cf2{card}}{\cf3{">}}}\par\pard
+\cbpat1{{\cf3{                <div class="}}{\cf2{label}}{\cf3{">\u32593?\u32476?\u27169?\u22411?</div>}}}\par\pard
+\cbpat1{{\cf3{                <div class="}}{\cf2{value}}{\cf3{">epoll ET</div>}}}\par\pard
+\cbpat1{{\cf3{            </div>}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{            <div class="}}{\cf2{card}}{\cf3{">}}}\par\pard
+\cbpat1{{\cf3{                <div class="}}{\cf2{label}}{\cf3{">\u-28646?\u20449?\u21327?\u-29778?</div>}}}\par\pard
+\cbpat1{{\cf3{                <div class="}}{\cf2{value}}{\cf3{">WebSocket</div>}}}\par\pard
+\cbpat1{{\cf3{            </div>}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{            <div class="}}{\cf2{card}}{\cf3{">}}}\par\pard
+\cbpat1{{\cf3{                <div class="}}{\cf2{label}}{\cf3{">\u25968?\u25454?\u24211?</div>}}}\par\pard
+\cbpat1{{\cf3{                <div class="}}{\cf2{value}}{\cf3{">SQLite</div>}}}\par\pard
+\cbpat1{{\cf3{            </div>}}}\par\pard
+\cbpat1{{\cf3{        </div>}}}\par\pard
+\cbpat1{{\cf3{}}}\par\pard
+\cbpat1{{\cf3{        <div class="}}{\cf2{desc}}{\cf3{">}}}\par\pard
+\cbpat1{{\cf3{            \u24403?\u21069?\u26381?\u21153?\u22120?\u25903?\u25345?\u29992?\u25143?\u27880?\u20876?\u12289?\u30331?\u24405?\u12289?\u31169?\u-32694?\u12289?\u32676?\u-32694?\u12289?\u22312?\u32447?\u29992?\u25143?\u26597?\u-29726?\u31561?\u21151?\u-32515?\u12290?}}}\par\pard
+\cbpat1{{\cf3{            \u26222?\u-28646?\u27983?\u-30264?\u22120?\u-29761?\u-27154? <code>http://\u26381?\u21153?\u22120?IP:{2}{0}{0}{6}/</code> \u20250?\u26174?\u31034?\u-29723?\u26381?\u21153?\u22120?\u30028?\u-26782?\u-229?}}}\par\pard
+\cbpat1{{\cf3{            \u-32694?\u22825?\u23458?\u25143?\u31471?\u-28646?\u-28729? <code>ws://\u26381?\u21153?\u22120?IP:{2}{0}{0}{6}/</code> \u24314?\u31435? WebSocket \u-28706?\u25509?\u12290?}}}\par\pard
+\cbpat1{{\cf3{        </div>}}}\par\pard
+\cbpat1{{\cf3{    </div>}}}\par\pard
+\cbpat1{{\cf3{</body>}}}\par\pard
+\cbpat1{{\cf3{</html>}}}\par\pard
+\cbpat1{{\cf3{)html"}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf17{buildHttpDashboardResponse}}{\cf2{}}{\cf11{()}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string body}} {\cf11{=}} {\cf2{}}{\cf17{buildServerDashboardHtml}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string response}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{    response}} {\cf11{+=}} {\cf2{}}{\cf3{"HTTP/{1}.{1} {2}{0}{0} OK}}{\cf7{\\r\\n}}{\cf3{"}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{    response}} {\cf11{+=}} {\cf2{}}{\cf3{"Content-Type: text/html; charset=utf-{8}}}{\cf7{\\r\\n}}{\cf3{"}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{    response}} {\cf11{+=}} {\cf2{}}{\cf3{"Content-Length: "}}{\cf2{}} {\cf11{+}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{to_string}}{\cf2{}}{\cf11{(}}{\cf2{body}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{()) +}} {\cf2{}}{\cf3{"}}{\cf7{\\r\\n}}{\cf3{"}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{    response}} {\cf11{+=}} {\cf2{}}{\cf3{"Connection: close}}{\cf7{\\r\\n}}{\cf3{"}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{    response}} {\cf11{+=}} {\cf2{}}{\cf3{"}}{\cf7{\\r\\n}}{\cf3{"}}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{    response}} {\cf11{+=}} {\cf2{body}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b return\b0 }} {\cf2{response}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}} {\cf2{}}{\cf5{\i // namespace\i0 }}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf18{WebSocketServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{WebSocketServer}}{\cf2{}}{\cf11{(}}{\cf2{AsyncTcpServer}} {\cf11{&}}{\cf2{tcpServer}}{\cf11{) :}} {\cf2{}}{\cf17{tcpServer_}}{\cf2{}}{\cf11{(}}{\cf2{tcpServer}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    tcpServer_}}{\cf11{.}}{\cf2{}}{\cf17{setClientConnectedCallback}}{\cf2{}}{\cf11{([}}{\cf2{}}{\cf15{\b this\b0 }}{\cf2{}}{\cf11{](}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}                                          {\cf11{\{}} {\cf2{}}{\cf17{handleTcpConnected}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{); \});}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    tcpServer_}}{\cf11{.}}{\cf2{}}{\cf17{setClientDisconnectedCallback}}{\cf2{}}{\cf11{([}}{\cf2{}}{\cf15{\b this\b0 }}{\cf2{}}{\cf11{](}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}                                             {\cf11{\{}} {\cf2{}}{\cf17{handleTcpDisconnected}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{); \});}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    tcpServer_}}{\cf11{.}}{\cf2{}}{\cf17{setInputBufferCallback}}{\cf2{}}{\cf11{([}}{\cf2{}}{\cf15{\b this\b0 }}{\cf2{}}{\cf11{](}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf11{&}}{\cf2{inputBuffer}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}                                      {\cf11{\{}} {\cf2{}}{\cf17{handleTcpInput}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{inputBuffer}}{\cf11{); \});}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{WebSocketServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{setClientConnectedCallback}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{function}}{\cf11{<}}{\cf2{}}{\cf16{void}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{)>}} {\cf2{callback}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    clientConnectedCallback_}} {\cf11{=}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{move}}{\cf2{}}{\cf11{(}}{\cf2{callback}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{WebSocketServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{setClientDisconnectedCallback}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{function}}{\cf11{<}}{\cf2{}}{\cf16{void}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{)>}} {\cf2{callback}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    clientDisconnectedCallback_}} {\cf11{=}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{move}}{\cf2{}}{\cf11{(}}{\cf2{callback}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{WebSocketServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{setTextCallback}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{function}}{\cf11{<}}{\cf2{}}{\cf16{void}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view}}{\cf11{)>}} {\cf2{callback}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    textCallback_}} {\cf11{=}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{move}}{\cf2{}}{\cf11{(}}{\cf2{callback}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{WebSocketServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{handleTcpConnected}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    clientStates_}}{\cf11{[}}{\cf2{clientSocket}}{\cf11{] =}} {\cf2{}}{\cf18{ClientState}}{\cf2{}}{\cf11{::}}{\cf2{HttpHandshake}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{spdlog}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{info}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"websocket client state created, socket \{\}"}}{\cf2{}}{\cf11{,}} {\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{WebSocketServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{handleTcpDisconnected}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{auto}} {\cf2{stateIterator}} {\cf11{=}} {\cf2{clientStates_}}{\cf11{.}}{\cf2{}}{\cf17{find}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf16{bool}} {\cf2{wasWebSocketConnected}} {\cf11{=}} {\cf2{stateIterator}} {\cf11{!=}} {\cf2{clientStates_}}{\cf11{.}}{\cf2{}}{\cf17{end}}{\cf2{}}{\cf11{() &&}}}\par\pard
+\cbpat1{{\cf2{                                 stateIterator}}{\cf11{->}}{\cf2{second}} {\cf11{==}} {\cf2{}}{\cf18{ClientState}}{\cf2{}}{\cf11{::}}{\cf2{WebSocketConnected}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{wasWebSocketConnected}} {\cf11{&&}} {\cf2{clientDisconnectedCallback_}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{clientDisconnectedCallback_}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{    clientStates_}}{\cf11{.}}{\cf2{}}{\cf17{erase}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{spdlog}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{info}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"websocket client state removed, socket \{\}"}}{\cf2{}}{\cf11{,}} {\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{WebSocketServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{handleTcpInput}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string}} {\cf11{&}}{\cf2{inputBuffer}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf17{auto}} {\cf2{stateIterator}} {\cf11{=}} {\cf2{clientStates_}}{\cf11{.}}{\cf2{}}{\cf17{find}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{stateIterator}} {\cf11{==}} {\cf2{clientStates_}}{\cf11{.}}{\cf2{}}{\cf17{end}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf18{spdlog}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{warn}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"client state not found for socket \{\}"}}{\cf2{}}{\cf11{,}} {\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{stateIterator}}{\cf11{->}}{\cf2{second}} {\cf11{==}} {\cf2{}}{\cf18{ClientState}}{\cf2{}}{\cf11{::}}{\cf2{HttpHandshake}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{}}{\cf18{WebSocket}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{hasCompleteHandshakeRequest}}{\cf2{}}{\cf11{(}}{\cf2{inputBuffer}}{\cf11{))}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf16{size_t}} {\cf2{headerEnd}} {\cf11{=}} {\cf2{inputBuffer}}{\cf11{.}}{\cf2{}}{\cf17{find}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"}}{\cf7{\\r\\n\\r\\n}}{\cf3{"}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{headerEnd}} {\cf11{==}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf18{string}}{\cf2{}}{\cf11{::}}{\cf2{npos}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string request}} {\cf11{=}} {\cf2{inputBuffer}}{\cf11{.}}{\cf2{}}{\cf17{substr}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf4{{0}}}{\cf2{}}{\cf11{,}} {\cf2{headerEnd}} {\cf11{+}} {\cf2{}}{\cf4{{4}}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{}}{\cf17{isWebSocketUpgradeRequest}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{))}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string response}} {\cf11{=}} {\cf2{}}{\cf17{buildHttpDashboardResponse}}{\cf2{}}{\cf11{();}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{            inputBuffer}}{\cf11{.}}{\cf2{}}{\cf17{erase}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf4{{0}}}{\cf2{}}{\cf11{,}} {\cf2{headerEnd}} {\cf11{+}} {\cf2{}}{\cf4{{4}}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{            tcpServer_}}{\cf11{.}}{\cf2{}}{\cf17{enqueueWrite}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{response}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf18{spdlog}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{info}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"server dashboard page served, socket \{\}"}}{\cf2{}}{\cf11{,}} {\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b try\b0 }}}\par\pard
+\cbpat1{{\cf2{}}        {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string response}} {\cf11{=}} {\cf2{}}{\cf18{WebSocket}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{buildHandshakeResponse}}{\cf2{}}{\cf11{(}}{\cf2{request}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{            inputBuffer}}{\cf11{.}}{\cf2{}}{\cf17{erase}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf4{{0}}}{\cf2{}}{\cf11{,}} {\cf2{headerEnd}} {\cf11{+}} {\cf2{}}{\cf4{{4}}}{\cf2{}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{            stateIterator}}{\cf11{->}}{\cf2{second}} {\cf11{=}} {\cf2{}}{\cf18{ClientState}}{\cf2{}}{\cf11{::}}{\cf2{WebSocketConnected}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{            tcpServer_}}{\cf11{.}}{\cf2{}}{\cf17{enqueueWrite}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{response}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf18{spdlog}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{info}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"websocket handshake success, socket \{\}"}}{\cf2{}}{\cf11{,}} {\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{clientConnectedCallback_}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}                {\cf17{clientConnectedCallback_}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b catch\b0 }} {\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{exception}} {\cf11{&}}{\cf2{error}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf18{spdlog}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{warn}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"websocket handshake failed, socket \{\}, error: \{\}"}}{\cf2{}}{\cf11{,}} {\cf2{clientSocket}}{\cf11{,}}}\par\pard
+\cbpat1{{\cf2{                         error}}{\cf11{.}}{\cf2{}}{\cf17{what}}{\cf2{}}{\cf11{());}}}\par\pard
+\cbpat1{{\cf2{            tcpServer_}}{\cf11{.}}{\cf2{}}{\cf17{closeClient}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{stateIterator}}{\cf11{->}}{\cf2{second}} {\cf11{==}} {\cf2{}}{\cf18{ClientState}}{\cf2{}}{\cf11{::}}{\cf2{WebSocketConnected}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b try\b0 }}}\par\pard
+\cbpat1{{\cf2{}}        {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf15{\b while\b0 }} {\cf2{}}{\cf11{(}}{\cf2{}}{\cf15{\b true\b0 }}{\cf2{}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}                {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{optional}}{\cf11{<}}{\cf2{}}{\cf18{WebSocket}}{\cf2{}}{\cf11{::}}{\cf2{Frame}}{\cf11{>}} {\cf2{frame}} {\cf11{=}} {\cf2{}}{\cf18{WebSocket}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{tryDecodeFrame}}{\cf2{}}{\cf11{(}}{\cf2{inputBuffer}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}                {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(!}}{\cf2{frame}}{\cf11{.}}{\cf2{}}{\cf17{has_value}}{\cf2{}}{\cf11{())}}}\par\pard
+\cbpat1{{\cf2{}}                    {\cf15{\b break\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}                {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{frame}}{\cf11{->}}{\cf2{opcode}} {\cf11{==}} {\cf2{}}{\cf18{WebSocket}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf18{Opcode}}{\cf2{}}{\cf11{::}}{\cf2{Text}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}                {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}                    {\cf17{onWebSocketText}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{frame}}{\cf11{->}}{\cf2{payload}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}                {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}                {\cf15{\b else if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{frame}}{\cf11{->}}{\cf2{opcode}} {\cf11{==}} {\cf2{}}{\cf18{WebSocket}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf18{Opcode}}{\cf2{}}{\cf11{::}}{\cf2{Ping}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}                {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}                    {\cf18{spdlog}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{info}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"websocket ping from socket \{\}"}}{\cf2{}}{\cf11{,}} {\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{                    tcpServer_}}{\cf11{.}}{\cf2{}}{\cf17{enqueueWrite}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}}}\par\pard
+\cbpat1{{\cf2{}}                                            {\cf18{WebSocket}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{buildPongFrame}}{\cf2{}}{\cf11{(}}{\cf2{frame}}{\cf11{->}}{\cf2{payload}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}                {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}                {\cf15{\b else if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{frame}}{\cf11{->}}{\cf2{opcode}} {\cf11{==}} {\cf2{}}{\cf18{WebSocket}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf18{Opcode}}{\cf2{}}{\cf11{::}}{\cf2{Close}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}                {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}                    {\cf18{spdlog}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{info}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"websocket close from socket \{\}"}}{\cf2{}}{\cf11{,}} {\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{                    tcpServer_}}{\cf11{.}}{\cf2{}}{\cf17{enqueueWrite}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf18{WebSocket}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{buildCloseFrame}}{\cf2{}}{\cf11{());}}}\par\pard
+\cbpat1{{\cf2{                    tcpServer_}}{\cf11{.}}{\cf2{}}{\cf17{closeClient}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}                    {\cf15{\b return\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}                {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}                {\cf15{\b else if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{frame}}{\cf11{->}}{\cf2{opcode}} {\cf11{==}} {\cf2{}}{\cf18{WebSocket}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf18{Opcode}}{\cf2{}}{\cf11{::}}{\cf2{Binary}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}                {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}                    {\cf18{spdlog}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{info}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"websocket binary frame from socket \{\}, size \{\}"}}{\cf2{}}{\cf11{,}} {\cf2{clientSocket}}{\cf11{,}}}\par\pard
+\cbpat1{{\cf2{                                 frame}}{\cf11{->}}{\cf2{payload}}{\cf11{.}}{\cf2{}}{\cf17{size}}{\cf2{}}{\cf11{());}}}\par\pard
+\cbpat1{{\cf2{}}                {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b catch\b0 }} {\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{const}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{exception}} {\cf11{&}}{\cf2{error}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf18{spdlog}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{warn}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"websocket frame decode failed, socket \{\}, error: \{\}"}}{\cf2{}}{\cf11{,}} {\cf2{clientSocket}}{\cf11{,}}}\par\pard
+\cbpat1{{\cf2{                         error}}{\cf11{.}}{\cf2{}}{\cf17{what}}{\cf2{}}{\cf11{());}}}\par\pard
+\cbpat1{{\cf2{            tcpServer_}}{\cf11{.}}{\cf2{}}{\cf17{closeClient}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{WebSocketServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{onWebSocketText}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view text}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{spdlog}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{info}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf3{"websocket text from socket \{\}: \{\}"}}{\cf2{}}{\cf11{,}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{text}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{textCallback_}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf17{textCallback_}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{text}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{WebSocketServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{sendTextFrame}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view text}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{    tcpServer_}}{\cf11{.}}{\cf2{}}{\cf17{enqueueWrite}}{\cf2{}}{\cf11{(}}{\cf2{clientSocket}}{\cf11{,}} {\cf2{}}{\cf18{WebSocket}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{buildTextFrame}}{\cf2{}}{\cf11{(}}{\cf2{text}}{\cf11{));}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}{\cf16{void}} {\cf2{}}{\cf18{WebSocketServer}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{broadcastTextFrame}}{\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{senderSocket}}{\cf11{,}} {\cf2{}}{\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string_view text}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{string frame}} {\cf11{=}} {\cf2{}}{\cf18{WebSocket}}{\cf2{}}{\cf11{::}}{\cf2{}}{\cf17{buildTextFrame}}{\cf2{}}{\cf11{(}}{\cf2{text}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf18{std}}{\cf2{}}{\cf11{::}}{\cf2{vector}}{\cf11{<}}{\cf2{}}{\cf16{int}}{\cf2{}}{\cf11{>}} {\cf2{targetSockets}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b for\b0 }} {\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{const}} {\cf2{}}{\cf17{auto}} {\cf2{}}{\cf11{&[}}{\cf2{socketFd}}{\cf11{,}} {\cf2{state}}{\cf11{] :}} {\cf2{clientStates_}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{socketFd}} {\cf11{==}} {\cf2{senderSocket}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf15{\b continue\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}        {\cf15{\b if\b0 }} {\cf2{}}{\cf11{(}}{\cf2{state}} {\cf11{!=}} {\cf2{}}{\cf18{ClientState}}{\cf2{}}{\cf11{::}}{\cf2{WebSocketConnected}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{}}            {\cf15{\b continue\b0 }}{\cf2{}}{\cf11{;}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{        targetSockets}}{\cf11{.}}{\cf2{}}{\cf17{push_back}}{\cf2{}}{\cf11{(}}{\cf2{socketFd}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf11{\}}}}\par\pard
+\cbpat1{{\cf2{}}}\par\pard
+\cbpat1{{\cf2{}}    {\cf15{\b for\b0 }} {\cf2{}}{\cf11{(}}{\cf2{}}{\cf16{int}} {\cf2{socketFd}} {\cf11{:}} {\cf2{targetSockets}}{\cf11{)}}}\par\pard
+\cbpat1{{\cf2{        tcpServer_}}{\cf11{.}}{\cf2{}}{\cf17{enqueueWrite}}{\cf2{}}{\cf11{(}}{\cf2{socketFd}}{\cf11{,}} {\cf2{frame}}{\cf11{);}}}\par\pard
+\cbpat1{{\cf2{}}{\cf11{\}}}{\cf2{}}}\par\pard
+\cbpat1{}}
