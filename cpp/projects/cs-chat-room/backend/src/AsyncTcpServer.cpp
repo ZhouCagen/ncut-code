@@ -45,6 +45,7 @@ AsyncTcpServer::~AsyncTcpServer()
     if (epollInstance_ != -1)
         ::close(epollInstance_);
 }
+
 void AsyncTcpServer::start()
 {
     createSocket();
